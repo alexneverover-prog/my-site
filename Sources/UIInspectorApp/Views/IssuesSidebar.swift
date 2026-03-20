@@ -1,5 +1,13 @@
 <<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
 #if canImport(AppKit)
+=======
+#if os(macOS)
+>>>>>>> theirs
+=======
+#if os(macOS)
+>>>>>>> theirs
 =======
 #if os(macOS)
 >>>>>>> theirs
@@ -12,22 +20,36 @@ struct IssuesSidebar: View {
         VStack(alignment: .leading, spacing: 18) {
             HStack {
 <<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
                 Text(L10n.issuesTitle)
                     .font(.title2.weight(.semibold))
                 Spacer()
                 Text("\(viewModel.issues.count)")
                     .font(.system(size: 13, weight: .semibold))
 =======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
                 Text("Найденные проблемы")
                     .font(.title3.bold())
                 Spacer()
                 Text("\(viewModel.issues.count)")
                     .font(.headline.monospacedDigit())
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
 >>>>>>> theirs
                     .foregroundStyle(.secondary)
             }
 
             if viewModel.issues.isEmpty {
+<<<<<<< ours
+<<<<<<< ours
 <<<<<<< ours
                 VStack(alignment: .leading, spacing: 10) {
                     Text(L10n.noResultsTitle)
@@ -44,17 +66,29 @@ struct IssuesSidebar: View {
                 )
 
 =======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
                 ContentUnavailableView(
                     "Пока пусто",
                     systemImage: "checkmark.seal",
                     description: Text("После анализа здесь появятся warning и critical замечания с рекомендациями.")
                 )
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
 >>>>>>> theirs
                 Spacer()
             } else {
                 ScrollView {
                     LazyVStack(spacing: 12) {
                         ForEach(viewModel.issues) { issue in
+<<<<<<< ours
+<<<<<<< ours
 <<<<<<< ours
                             IssueCard(
                                 issue: issue,
@@ -63,16 +97,28 @@ struct IssuesSidebar: View {
                                 viewModel.selectIssue(issue)
                             }
 =======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
                             IssueRow(issue: issue, isSelected: viewModel.selectedIssueID == issue.id)
                                 .onTapGesture {
                                     viewModel.selectIssue(issue)
                                 }
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
 >>>>>>> theirs
                         }
                     }
                 }
             }
         }
+<<<<<<< ours
+<<<<<<< ours
 <<<<<<< ours
         .padding(24)
         .background(Color(nsColor: .controlBackgroundColor))
@@ -132,6 +178,10 @@ private struct IssueCard: View {
     }
 }
 =======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
         .padding(20)
     }
 }
@@ -188,5 +238,11 @@ private struct SeverityBadge: View {
     }
 }
 
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 #endif

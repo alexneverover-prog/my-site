@@ -1,4 +1,6 @@
 <<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
 #if canImport(AppKit)
 import SwiftUI
 import UniformTypeIdentifiers
@@ -49,6 +51,10 @@ struct UploadPanel: View {
                 heuristicRow(L10n.checkHierarchy)
                 heuristicRow(L10n.checkClickability)
 =======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
 #if os(macOS)
 import SwiftUI
 #if os(macOS)
@@ -102,12 +108,20 @@ struct UploadPanel: View {
                 heuristicRow(text: "Контраст < 4.5:1 → critical")
                 heuristicRow(text: "Неровные spacing между карточками → inconsistency")
                 heuristicRow(text: "CTA с низким контрастом / высотой < 40 pt → critical")
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
 >>>>>>> theirs
             }
 
             Spacer()
         }
         .padding(24)
+<<<<<<< ours
+<<<<<<< ours
 <<<<<<< ours
         .background(Color(nsColor: .controlBackgroundColor))
     }
@@ -144,6 +158,10 @@ struct UploadPanel: View {
     }
 }
 =======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
     }
 
     private func heuristicRow(text: String) -> some View {
@@ -159,5 +177,11 @@ struct UploadPanel: View {
     }
 }
 
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 #endif

@@ -1,4 +1,6 @@
 <<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
 import CoreGraphics
 import Foundation
 
@@ -17,6 +19,10 @@ struct UIElement: Identifiable {
     let text: String?
     let confidence: Double
 =======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
 import Foundation
 
 /// Simplified UI block detected from the screenshot.
@@ -59,5 +65,11 @@ struct UIElement: Identifiable, Hashable {
         self.backgroundLuminance = backgroundLuminance
         self.clickableScore = clickableScore
     }
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 }

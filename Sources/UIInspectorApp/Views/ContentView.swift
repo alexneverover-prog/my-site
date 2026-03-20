@@ -1,7 +1,17 @@
 <<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
 #if canImport(AppKit)
 import SwiftUI
 import UniformTypeIdentifiers
+=======
+#if os(macOS)
+import SwiftUI
+>>>>>>> theirs
+=======
+#if os(macOS)
+import SwiftUI
+>>>>>>> theirs
 =======
 #if os(macOS)
 import SwiftUI
@@ -11,6 +21,8 @@ struct ContentView: View {
     @ObservedObject var viewModel: InspectorViewModel
 
     var body: some View {
+<<<<<<< ours
+<<<<<<< ours
 <<<<<<< ours
         VStack(spacing: 0) {
             ToolbarView(viewModel: viewModel)
@@ -45,6 +57,10 @@ struct ContentView: View {
     }
 }
 =======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
         NavigationStack {
             VStack(spacing: 0) {
                 ToolbarView(viewModel: viewModel)
@@ -73,5 +89,11 @@ struct ContentView: View {
     }
 }
 
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 #endif

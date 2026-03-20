@@ -1,4 +1,6 @@
 <<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
 #if canImport(AppKit)
 import AppKit
 import CoreGraphics
@@ -349,6 +351,10 @@ private struct RGBAColor {
 }
 #endif
 =======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
 #if os(macOS)
 import AppKit
 import Foundation
@@ -577,4 +583,10 @@ enum MockElementFactory {
 
     static let fallbackElements: [UIElement] = seededElements(for: CGSize(width: 1440, height: 900))
 }
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
 >>>>>>> theirs

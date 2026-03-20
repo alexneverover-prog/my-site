@@ -1,4 +1,6 @@
 <<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
 #if canImport(AppKit)
 import AppKit
 import Combine
@@ -135,6 +137,10 @@ final class InspectorViewModel: ObservableObject {
     }
 }
 =======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
 #if os(macOS)
 import Foundation
 import SwiftUI
@@ -227,5 +233,11 @@ final class InspectorViewModel: ObservableObject {
     #endif
 }
 
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 #endif

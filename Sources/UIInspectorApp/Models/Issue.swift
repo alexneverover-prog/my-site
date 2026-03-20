@@ -1,4 +1,6 @@
 <<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
 import CoreGraphics
 import Foundation
 
@@ -14,6 +16,10 @@ struct Issue: Identifiable {
     let id = UUID()
     let kind: IssueKind
 =======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
 import Foundation
 
 /// User-facing issue shown in the side panel and overlay.
@@ -29,11 +35,19 @@ struct Issue: Identifiable, Hashable {
 
     let id: UUID
     let kind: Kind
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
 >>>>>>> theirs
     let severity: IssueSeverity
     let title: String
     let description: String
     let recommendation: String
+<<<<<<< ours
+<<<<<<< ours
 <<<<<<< ours
     let frame: CGRect
 }
@@ -42,6 +56,10 @@ struct AnalysisResult {
     let elements: [UIElement]
     let issues: [Issue]
 =======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
     let elementID: UIElement.ID?
 
     init(
@@ -61,5 +79,11 @@ struct AnalysisResult {
         self.recommendation = recommendation
         self.elementID = elementID
     }
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 }

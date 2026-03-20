@@ -1,4 +1,6 @@
 <<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
 #if canImport(AppKit)
 import AppKit
 import SwiftUI
@@ -57,6 +59,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NSEvent.removeMonitor(eventMonitor)
         }
 =======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
 #if os(macOS)
 import SwiftUI
 
@@ -70,6 +76,12 @@ struct UIInspectorMacApp: App {
                 .frame(minWidth: 1200, minHeight: 760)
         }
         .windowResizability(.contentSize)
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
 >>>>>>> theirs
     }
 }

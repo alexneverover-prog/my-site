@@ -1,6 +1,16 @@
 <<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
 .DS_Store
 .build
+=======
+.build/
+.DS_Store
+>>>>>>> theirs
+=======
+.build/
+.DS_Store
+>>>>>>> theirs
 =======
 .build/
 .DS_Store

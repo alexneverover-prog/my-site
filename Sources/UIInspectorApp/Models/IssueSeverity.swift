@@ -1,4 +1,6 @@
 <<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
 import SwiftUI
 
 enum IssueSeverity: String, CaseIterable, Codable {
@@ -33,6 +35,10 @@ enum IssueSeverity: String, CaseIterable, Codable {
     }
 }
 =======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
 import Foundation
 #if os(macOS)
 import SwiftUI
@@ -63,4 +69,10 @@ extension IssueSeverity {
     }
 }
 #endif
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
 >>>>>>> theirs

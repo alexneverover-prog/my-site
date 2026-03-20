@@ -1,13 +1,25 @@
 <<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
 #if canImport(AppKit)
 import SwiftUI
 =======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
 #if os(macOS)
 import SwiftUI
 #if os(macOS)
 import AppKit
 import AVFoundation
 #endif
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 
 struct ScreenshotCanvas: View {
@@ -16,6 +28,8 @@ struct ScreenshotCanvas: View {
     var body: some View {
         GeometryReader { proxy in
             ZStack {
+<<<<<<< ours
+<<<<<<< ours
 <<<<<<< ours
                 RoundedRectangle(cornerRadius: 28)
                     .fill(Color(nsColor: .underPageBackgroundColor))
@@ -63,6 +77,10 @@ struct ScreenshotCanvas: View {
                             .foregroundStyle(.secondary)
                     }
 =======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
                 RoundedRectangle(cornerRadius: 24)
                     .fill(Color.white)
                     .shadow(color: .black.opacity(0.05), radius: 20, y: 8)
@@ -85,11 +103,19 @@ struct ScreenshotCanvas: View {
                         systemImage: "photo.on.rectangle.angled",
                         description: Text("После загрузки интерфейса здесь появится превью и overlay с подсветкой проблемных зон.")
                     )
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
 >>>>>>> theirs
                 }
             }
             .padding(24)
         }
+<<<<<<< ours
+<<<<<<< ours
 <<<<<<< ours
         .background(Color(nsColor: .textBackgroundColor))
     }
@@ -144,6 +170,10 @@ private struct FittedImageLayout {
     }
 }
 =======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
     }
 }
 
@@ -214,5 +244,11 @@ private struct IssueOverlay: View {
     }
 }
 
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 #endif

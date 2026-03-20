@@ -1,5 +1,13 @@
 <<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
 #if canImport(AppKit)
+=======
+#if os(macOS)
+>>>>>>> theirs
+=======
+#if os(macOS)
+>>>>>>> theirs
 =======
 #if os(macOS)
 >>>>>>> theirs
@@ -10,6 +18,8 @@ struct ToolbarView: View {
 
     var body: some View {
 <<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(L10n.appName)
@@ -19,6 +29,10 @@ struct ToolbarView: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
 =======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
         HStack(alignment: .center, spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
                 Text("UI Inspector")
@@ -26,11 +40,19 @@ struct ToolbarView: View {
                 Text(viewModel.analysisSummary)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
 >>>>>>> theirs
             }
 
             Spacer()
 
+<<<<<<< ours
+<<<<<<< ours
 <<<<<<< ours
             SummaryPill(title: L10n.critical, value: viewModel.criticalCount, tint: .red)
             SummaryPill(title: L10n.warningsPlural, value: viewModel.warningCount, tint: .orange)
@@ -80,6 +102,10 @@ private struct SummaryPill: View {
     }
 }
 =======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
             Button("Upload") {
                 #if os(macOS)
                 viewModel.openImagePicker()
@@ -105,5 +131,11 @@ private struct SummaryPill: View {
     }
 }
 
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
 >>>>>>> theirs
 #endif
