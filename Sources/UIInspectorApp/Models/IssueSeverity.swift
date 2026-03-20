@@ -1,6 +1,3 @@
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
 import SwiftUI
 
 enum IssueSeverity: String, CaseIterable, Codable {
@@ -21,58 +18,16 @@ enum IssueSeverity: String, CaseIterable, Codable {
         case .warning:
             return Color.orange
         case .critical:
-            return Color.red
+            return Color(red: 0.87, green: 0.29, blue: 0.26)
         }
     }
 
     var overlayColor: Color {
         switch self {
         case .warning:
-            return Color.yellow
+            return Color(red: 1.0, green: 0.77, blue: 0.31)
         case .critical:
-            return Color.red
+            return Color(red: 1.0, green: 0.45, blue: 0.4)
         }
     }
 }
-=======
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
-import Foundation
-#if os(macOS)
-import SwiftUI
-#endif
-
-/// Severity used to style issue badges and overlay borders.
-enum IssueSeverity: String, Codable, CaseIterable, Identifiable, Hashable {
-    case warning
-    case critical
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .warning: "Warning"
-        case .critical: "Critical"
-        }
-    }
-}
-
-#if os(macOS)
-extension IssueSeverity {
-    var color: Color {
-        switch self {
-        case .warning: .orange
-        case .critical: .red
-        }
-    }
-}
-#endif
-<<<<<<< ours
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs

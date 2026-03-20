@@ -1,6 +1,3 @@
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
 #if canImport(AppKit)
 import AppKit
 import SwiftUI
@@ -58,31 +55,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if let eventMonitor {
             NSEvent.removeMonitor(eventMonitor)
         }
-=======
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
-#if os(macOS)
-import SwiftUI
-
-@main
-struct UIInspectorMacApp: App {
-    @StateObject private var viewModel = InspectorViewModel()
-
-    var body: some Scene {
-        WindowGroup {
-            ContentView(viewModel: viewModel)
-                .frame(minWidth: 1200, minHeight: 760)
-        }
-        .windowResizability(.contentSize)
-<<<<<<< ours
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
     }
 }
 #endif

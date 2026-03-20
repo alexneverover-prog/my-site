@@ -1,6 +1,3 @@
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
 #if canImport(AppKit)
 import AppKit
 import CoreGraphics
@@ -35,9 +32,7 @@ struct UIAnalyzer {
             return []
         }
 
-        let observations = request.results ?? []
-
-        return observations.compactMap { observation in
+        return (request.results ?? []).compactMap { observation in
             guard let candidate = observation.topCandidates(1).first else {
                 return nil
             }
@@ -57,14 +52,14 @@ struct UIAnalyzer {
         let height = imageSize.height
 
         let cards = [
-            CGRect(x: width * 0.07, y: height * 0.2, width: width * 0.38, height: height * 0.22),
-            CGRect(x: width * 0.55, y: height * 0.2, width: width * 0.28, height: height * 0.12),
-            CGRect(x: width * 0.55, y: height * 0.38, width: width * 0.28, height: height * 0.12)
+            CGRect(x: width * 0.07, y: height * 0.18, width: width * 0.28, height: height * 0.18),
+            CGRect(x: width * 0.07, y: height * 0.42, width: width * 0.28, height: height * 0.18),
+            CGRect(x: width * 0.07, y: height * 0.66, width: width * 0.28, height: height * 0.18),
+            CGRect(x: width * 0.58, y: height * 0.26, width: width * 0.26, height: height * 0.14),
+            CGRect(x: width * 0.58, y: height * 0.5, width: width * 0.26, height: height * 0.22)
         ]
 
-        return cards.map {
-            UIElement(kind: .card, frame: $0, text: nil, confidence: 0.35)
-        }
+        return cards.map { UIElement(kind: .card, frame: $0, confidence: 0.35) }
     }
 
     private func merge(elements: [UIElement]) -> [UIElement] {
@@ -89,11 +84,11 @@ struct UIAnalyzer {
 
     private func buildIssues(from elements: [UIElement], in cgImage: CGImage) -> [Issue] {
         var issues: [Issue] = []
-
         let textElements = elements.filter { $0.kind == .text || $0.kind == .button }
+
         issues.append(contentsOf: analyzeTypography(textElements))
         issues.append(contentsOf: analyzeHierarchy(textElements))
-        issues.append(contentsOf: analyzeSpacing(textElements))
+        issues.append(contentsOf: analyzeSpacing(textElements + elements.filter { $0.kind == .card }))
         issues.append(contentsOf: analyzeContrast(textElements, in: cgImage))
         issues.append(contentsOf: analyzeCTA(textElements, in: cgImage))
 
@@ -103,7 +98,8 @@ struct UIAnalyzer {
     private func analyzeTypography(_ elements: [UIElement]) -> [Issue] {
         elements.compactMap { element in
             let estimatedFontSize = max(8, element.frame.height * 0.72)
-            let estimatedLineHeight = element.frame.height / max(1, CGFloat((element.text ?? "").split(separator: "\n").count))
+            let lineCount = max(1, CGFloat((element.text ?? "").split(separator: "\n").count))
+            let estimatedLineHeight = element.frame.height / lineCount
             let ratio = estimatedLineHeight / max(estimatedFontSize, 1)
 
             if estimatedFontSize < 14 {
@@ -113,7 +109,8 @@ struct UIAnalyzer {
                     title: L10n.smallTextSizeTitle(),
                     description: L10n.smallTextSizeDescription(Int(estimatedFontSize)),
                     recommendation: L10n.smallTextSizeRecommendation,
-                    frame: element.frame
+                    frame: element.frame,
+                    elementID: element.id
                 )
             }
 
@@ -124,7 +121,8 @@ struct UIAnalyzer {
                     title: L10n.tightLineHeightTitle,
                     description: L10n.tightLineHeightDescription,
                     recommendation: L10n.tightLineHeightRecommendation,
-                    frame: element.frame
+                    frame: element.frame,
+                    elementID: element.id
                 )
             }
 
@@ -142,7 +140,7 @@ struct UIAnalyzer {
             return []
         }
 
-        let unionFrame = elements.reduce(.null) { partial, element in
+        let unionFrame = elements.reduce(CGRect.null) { partial, element in
             partial == .null ? element.frame : partial.union(element.frame)
         }
 
@@ -177,14 +175,13 @@ struct UIAnalyzer {
                 return nil
             }
 
-            let frame = pair.0.frame.union(pair.1.frame)
             return Issue(
                 kind: .spacing,
                 severity: .warning,
                 title: L10n.inconsistentSpacingTitle,
                 description: L10n.inconsistentSpacingDescription,
                 recommendation: L10n.inconsistentSpacingRecommendation,
-                frame: frame
+                frame: pair.0.frame.union(pair.1.frame)
             )
         }
     }
@@ -192,8 +189,7 @@ struct UIAnalyzer {
     private func analyzeContrast(_ elements: [UIElement], in cgImage: CGImage) -> [Issue] {
         elements.compactMap { element in
             let textColor = averageColor(in: element.frame, cgImage: cgImage)
-            let backgroundRect = element.frame.insetBy(dx: -12, dy: -8)
-            let backgroundColor = averageColor(in: backgroundRect, cgImage: cgImage)
+            let backgroundColor = averageColor(in: element.frame.insetBy(dx: -12, dy: -8), cgImage: cgImage)
             let ratio = contrastRatio(textColor, backgroundColor)
 
             guard ratio < 4.5 else {
@@ -206,7 +202,8 @@ struct UIAnalyzer {
                 title: L10n.lowContrastTitle,
                 description: L10n.lowContrastDescription(ratio),
                 recommendation: L10n.lowContrastRecommendation,
-                frame: element.frame
+                frame: element.frame,
+                elementID: element.id
             )
         }
     }
@@ -233,7 +230,8 @@ struct UIAnalyzer {
                     title: L10n.weakCTATitle,
                     description: L10n.weakCTADescription,
                     recommendation: L10n.weakCTARecommendation,
-                    frame: element.frame
+                    frame: element.frame,
+                    elementID: element.id
                 )
             }
 
@@ -350,243 +348,3 @@ private struct RGBAColor {
     }
 }
 #endif
-=======
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
-#if os(macOS)
-import AppKit
-import Foundation
-import Vision
-#else
-import Foundation
-#endif
-
-/// Main analyzer protocol so the implementation can be swapped later for a real Vision pipeline.
-protocol UIAnalyzing {
-    func analyze(image: PlatformImage) async -> AnalysisResult
-}
-
-struct AnalysisResult {
-    let elements: [UIElement]
-    let issues: [Issue]
-}
-
-#if os(macOS)
-typealias PlatformImage = NSImage
-#else
-typealias PlatformImage = Data
-#endif
-
-final class UIAnalyzer: UIAnalyzing {
-    func analyze(image: PlatformImage) async -> AnalysisResult {
-        let elements = await detectElements(in: image)
-        let issues = evaluateIssues(in: elements)
-        return AnalysisResult(elements: elements, issues: issues)
-    }
-
-    private func detectElements(in image: PlatformImage) async -> [UIElement] {
-        #if os(macOS)
-        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
-            return MockElementFactory.fallbackElements
-        }
-
-        // Minimal OCR usage for the MVP. Bounding boxes still fall back to mock layout blocks
-        // so the app remains deterministic even when Vision returns little signal.
-        let request = VNRecognizeTextRequest()
-        request.recognitionLanguages = ["en-US"]
-        request.recognitionLevel = .accurate
-        request.usesLanguageCorrection = true
-
-        let handler = VNImageRequestHandler(cgImage: cgImage)
-        try? handler.perform([request])
-
-        let textBlocks: [UIElement] = (request.results ?? []).compactMap { observation in
-            guard let candidate = observation.topCandidates(1).first else { return nil }
-            let rect = normalizedToImageRect(observation.boundingBox, size: CGSize(width: cgImage.width, height: cgImage.height))
-            let estimatedFontSize = max(12, rect.height * 0.55)
-            return UIElement(
-                frame: rect,
-                kind: .text,
-                text: candidate.string,
-                fontSize: estimatedFontSize,
-                lineHeight: estimatedFontSize * 1.15,
-                foregroundLuminance: 0.35,
-                backgroundLuminance: 0.95,
-                clickableScore: nil
-            )
-        }
-
-        let seeded = MockElementFactory.seededElements(for: CGSize(width: cgImage.width, height: cgImage.height))
-        return merge(textBlocks: textBlocks, seeded: seeded)
-        #else
-        return MockElementFactory.fallbackElements
-        #endif
-    }
-
-    private func merge(textBlocks: [UIElement], seeded: [UIElement]) -> [UIElement] {
-        guard !textBlocks.isEmpty else { return seeded }
-        return seeded.filter { $0.kind != .text } + textBlocks + seeded.filter { $0.kind == .text && $0.text == nil }
-    }
-
-    private func evaluateIssues(in elements: [UIElement]) -> [Issue] {
-        var issues: [Issue] = []
-        let textElements = elements.filter { $0.kind == .text }
-        let buttons = elements.filter { $0.kind == .button }
-        let cards = elements.filter { $0.kind == .card }
-
-        for element in textElements {
-            if let fontSize = element.fontSize, fontSize < 16 {
-                issues.append(Issue(
-                    kind: .smallText,
-                    severity: .warning,
-                    title: "Слишком маленький размер шрифта",
-                    description: "Текстовый блок выглядит меньше рекомендуемых 14–16 pt для комфортного чтения.",
-                    recommendation: "Увеличьте размер шрифта минимум до 16 pt для основного контента.",
-                    elementID: element.id
-                ))
-            }
-
-            if let fontSize = element.fontSize, let lineHeight = element.lineHeight, lineHeight / fontSize < 1.3 {
-                issues.append(Issue(
-                    kind: .weakHierarchy,
-                    severity: .warning,
-                    title: "Недостаточная межстрочность",
-                    description: "Межстрочный интервал ниже 1.3 и ухудшает читаемость длинных строк.",
-                    recommendation: "Увеличьте line-height до 1.3–1.5 от размера шрифта.",
-                    elementID: element.id
-                ))
-            }
-
-            if let foreground = element.foregroundLuminance, let background = element.backgroundLuminance {
-                let ratio = contrastRatio(foreground: foreground, background: background)
-                if ratio < 4.5 {
-                    issues.append(Issue(
-                        kind: .lowContrast,
-                        severity: .critical,
-                        title: "Низкий контраст текста",
-                        description: String(format: "Оценочный контраст %.1f:1 ниже порога WCAG 4.5:1.", ratio),
-                        recommendation: "Усильте контраст текста или затемните фон, чтобы добиться минимум 4.5:1.",
-                        elementID: element.id
-                    ))
-                }
-            }
-        }
-
-        if textElements.count > 1 {
-            let sizes = Set(textElements.compactMap { $0.fontSize.map { Int($0.rounded()) } })
-            if sizes.count < 2 {
-                issues.append(Issue(
-                    kind: .weakHierarchy,
-                    severity: .warning,
-                    title: "Слабая типографическая иерархия",
-                    description: "В макете почти нет различий между размерами текста, заголовками и телом.",
-                    recommendation: "Добавьте более явную иерархию: крупнее заголовки, меньше вторичный текст."
-                ))
-            }
-        }
-
-        let cardSpacings = verticalSpacings(for: cards)
-        if let spread = spacingSpread(cardSpacings), spread > 12 {
-            issues.append(Issue(
-                kind: .inconsistentSpacing,
-                severity: .warning,
-                title: "Неровные отступы между карточками",
-                description: "Разброс расстояний между похожими блоками превышает 12 pt.",
-                recommendation: "Приведите вертикальные и горизонтальные отступы карточек к одной сетке."
-            ))
-        }
-
-        for button in buttons {
-            if let score = button.clickableScore, score < 0.45 {
-                issues.append(Issue(
-                    kind: .lowClickability,
-                    severity: .warning,
-                    title: "Элемент выглядит некликабельным",
-                    description: "У кнопки слабая визуальная affordance: мало контраста, границы или заполнения.",
-                    recommendation: "Добавьте фон, контур, тень или более явную форму кнопки.",
-                    elementID: button.id
-                ))
-            }
-
-            if let fg = button.foregroundLuminance, let bg = button.backgroundLuminance {
-                let ratio = contrastRatio(foreground: fg, background: bg)
-                if ratio < 3.0 || button.frame.height < 40 {
-                    issues.append(Issue(
-                        kind: .weakCTA,
-                        severity: .critical,
-                        title: "CTA недостаточно выделен",
-                        description: "Кнопка призыва к действию имеет слабый контраст или маленькую высоту.",
-                        recommendation: "Сделайте CTA контрастнее и не ниже 40–44 pt по высоте.",
-                        elementID: button.id
-                    ))
-                }
-            }
-        }
-
-        return deduplicate(issues)
-    }
-
-    private func contrastRatio(foreground: CGFloat, background: CGFloat) -> CGFloat {
-        let lighter = max(foreground, background)
-        let darker = min(foreground, background)
-        return (lighter + 0.05) / (darker + 0.05)
-    }
-
-    private func verticalSpacings(for elements: [UIElement]) -> [CGFloat] {
-        let sorted = elements.sorted { $0.frame.minY < $1.frame.minY }
-        guard sorted.count > 1 else { return [] }
-        return zip(sorted, sorted.dropFirst()).map { next in
-            next.1.frame.minY - next.0.frame.maxY
-        }
-    }
-
-    private func spacingSpread(_ values: [CGFloat]) -> CGFloat? {
-        guard let minValue = values.min(), let maxValue = values.max() else { return nil }
-        return maxValue - minValue
-    }
-
-    private func deduplicate(_ issues: [Issue]) -> [Issue] {
-        var seen = Set<String>()
-        return issues.filter { issue in
-            let key = [issue.kind.rawValue, issue.elementID?.uuidString ?? "none", issue.title].joined(separator: "|")
-            return seen.insert(key).inserted
-        }
-    }
-
-    #if os(macOS)
-    private func normalizedToImageRect(_ rect: CGRect, size: CGSize) -> CGRect {
-        CGRect(
-            x: rect.minX * size.width,
-            y: (1 - rect.maxY) * size.height,
-            width: rect.width * size.width,
-            height: rect.height * size.height
-        )
-    }
-    #endif
-}
-
-enum MockElementFactory {
-    static func seededElements(for size: CGSize) -> [UIElement] {
-        let width = size.width
-        let height = size.height
-        return [
-            UIElement(frame: CGRect(x: width * 0.08, y: height * 0.08, width: width * 0.34, height: 28), kind: .text, text: "Dashboard overview", fontSize: 18, lineHeight: 22, foregroundLuminance: 0.22, backgroundLuminance: 0.96),
-            UIElement(frame: CGRect(x: width * 0.08, y: height * 0.16, width: width * 0.26, height: 16), kind: .text, text: "Monitor sales and conversion", fontSize: 12, lineHeight: 14, foregroundLuminance: 0.48, backgroundLuminance: 0.95),
-            UIElement(frame: CGRect(x: width * 0.08, y: height * 0.26, width: width * 0.32, height: height * 0.18), kind: .card, backgroundLuminance: 0.92),
-            UIElement(frame: CGRect(x: width * 0.08, y: height * 0.49, width: width * 0.32, height: height * 0.18), kind: .card, backgroundLuminance: 0.93),
-            UIElement(frame: CGRect(x: width * 0.08, y: height * 0.74, width: width * 0.32, height: height * 0.18), kind: .card, backgroundLuminance: 0.91),
-            UIElement(frame: CGRect(x: width * 0.6, y: height * 0.76, width: width * 0.18, height: 34), kind: .button, text: "Continue", fontSize: 14, lineHeight: 16, foregroundLuminance: 0.9, backgroundLuminance: 0.74, clickableScore: 0.38)
-        ]
-    }
-
-    static let fallbackElements: [UIElement] = seededElements(for: CGSize(width: 1440, height: 900))
-}
-<<<<<<< ours
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs

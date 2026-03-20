@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:my-site}",
+            "name": "Debug UIInspectorApp",
+            "target": "UIInspectorApp",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug UIInspectorApp"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:my-site}",
+            "name": "Release UIInspectorApp",
+            "target": "UIInspectorApp",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release UIInspectorApp"
+        }
+    ]
+}

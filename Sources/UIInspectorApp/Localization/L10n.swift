@@ -10,6 +10,7 @@ enum L10n {
 
     static var appName: String { text(ru: "UI Inspector", en: "UI Inspector") }
     static var issuesTitle: String { text(ru: "Проблемы", en: "Issues") }
+    static var detectedIssuesTitle: String { text(ru: "НАЙДЕННЫЕ ПРОБЛЕМЫ", en: "DETECTED ISSUES") }
     static var inputTitle: String { text(ru: "Ввод", en: "Input") }
     static var dropScreenshotTitle: String { text(ru: "Скриншот", en: "Drop Screenshot") }
     static var dropScreenshotDescription: String { text(ru: "PNG, JPEG или любой другой файл изображения. Анализатор использует OCR и базовые эвристики layout.", en: "PNG, JPEG, or any image file. The analyzer uses OCR plus lightweight layout heuristics.") }
@@ -19,6 +20,11 @@ enum L10n {
     static var noResultsDescription: String { text(ru: "Запустите анализ, чтобы проверить отступы, типографику, контраст, иерархию и выразительность CTA.", en: "Run the analyzer to inspect spacing, typography, contrast, hierarchy, and CTA clarity.") }
     static var previewTitle: String { text(ru: "Превью появится здесь", en: "Preview will appear here") }
     static var previewDescription: String { text(ru: "Загрузите скриншот интерфейса и запустите анализ, чтобы увидеть подсвеченные проблемы.", en: "Upload a UI screenshot and run analysis to see highlighted issues.") }
+    static var currentScreenTitleLabel: String { text(ru: "ТЕКУЩИЙ\nЭКРАН", en: "CURRENT\nSCREEN") }
+    static var currentScreenPlaceholder: String { text(ru: "Добавьте скриншот", en: "Add a screenshot") }
+    static var currentScreenDetected: String { text(ru: "Checkout flow", en: "Checkout flow") }
+    static var alignmentScoreTitle: String { text(ru: "Alignment score", en: "Alignment score") }
+    static var recommendationsTitle: String { text(ru: "Recommendations", en: "Recommendations") }
     static var critical: String { text(ru: "Критично", en: "Critical") }
     static var warning: String { text(ru: "Предупреждение", en: "Warning") }
     static var warningsPlural: String { text(ru: "Предупреждения", en: "Warnings") }
@@ -43,6 +49,14 @@ enum L10n {
         }
 
         return "Found \(count) issue\(count == 1 ? "" : "s"). Select one to highlight it."
+    }
+
+    static func findingsCount(_ count: Int) -> String {
+        if isRussian {
+            return "\(count)\nнаходок"
+        }
+
+        return "\(count)\nfindings"
     }
 
     static var checkSpacing: String { text(ru: "Согласованность отступов между соседними элементами", en: "Spacing consistency across stacked elements") }

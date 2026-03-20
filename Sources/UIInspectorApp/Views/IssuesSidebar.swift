@@ -1,127 +1,57 @@
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
 #if canImport(AppKit)
-=======
-#if os(macOS)
->>>>>>> theirs
-=======
-#if os(macOS)
->>>>>>> theirs
-=======
-#if os(macOS)
->>>>>>> theirs
 import SwiftUI
 
 struct IssuesSidebar: View {
     @ObservedObject var viewModel: InspectorViewModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            HStack {
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-                Text(L10n.issuesTitle)
-                    .font(.title2.weight(.semibold))
-                Spacer()
-                Text("\(viewModel.issues.count)")
-                    .font(.system(size: 13, weight: .semibold))
-=======
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
-                Text("Найденные проблемы")
-                    .font(.title3.bold())
-                Spacer()
-                Text("\(viewModel.issues.count)")
-                    .font(.headline.monospacedDigit())
-<<<<<<< ours
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
-                    .foregroundStyle(.secondary)
-            }
+        VStack(alignment: .leading, spacing: 26) {
+            Text(L10n.detectedIssuesTitle)
+                .font(.system(size: 18, weight: .semibold))
+                .tracking(6)
+                .foregroundStyle(Color.black.opacity(0.55))
 
             if viewModel.issues.isEmpty {
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-                VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: 12) {
                     Text(L10n.noResultsTitle)
-                        .font(.headline)
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundStyle(Color.black.opacity(0.9))
                     Text(L10n.noResultsDescription)
-                        .font(.system(size: 13))
-                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                        .foregroundStyle(Color.black.opacity(0.5))
                 }
-                .padding(18)
+                .padding(24)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
-                    RoundedRectangle(cornerRadius: 18)
-                        .fill(Color.secondary.opacity(0.08))
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .fill(Color.white.opacity(0.78))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .stroke(Color.black.opacity(0.05), lineWidth: 1)
                 )
 
-=======
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
-                ContentUnavailableView(
-                    "Пока пусто",
-                    systemImage: "checkmark.seal",
-                    description: Text("После анализа здесь появятся warning и critical замечания с рекомендациями.")
-                )
-<<<<<<< ours
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
                 Spacer()
             } else {
-                ScrollView {
-                    LazyVStack(spacing: 12) {
+                ScrollView(showsIndicators: false) {
+                    LazyVStack(spacing: 18) {
                         ForEach(viewModel.issues) { issue in
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
                             IssueCard(
                                 issue: issue,
                                 isSelected: issue.id == viewModel.selectedIssueID
                             ) {
                                 viewModel.selectIssue(issue)
                             }
-=======
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
-                            IssueRow(issue: issue, isSelected: viewModel.selectedIssueID == issue.id)
-                                .onTapGesture {
-                                    viewModel.selectIssue(issue)
-                                }
-<<<<<<< ours
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
                         }
                     }
+                    .padding(.bottom, 12)
                 }
             }
         }
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-        .padding(24)
-        .background(Color(nsColor: .controlBackgroundColor))
+        .padding(.horizontal, 24)
+        .padding(.top, 42)
+        .padding(.bottom, 28)
+        .background(Color.white.opacity(0.2))
     }
 }
 
@@ -132,117 +62,64 @@ private struct IssueCard: View {
 
     var body: some View {
         Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack {
-                    Text(issue.severity.title)
-                        .font(.system(size: 11, weight: .semibold))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(issue.severity.color.opacity(0.14))
-                        .clipShape(Capsule())
-                        .foregroundStyle(issue.severity.color)
-                    Spacer()
-                    Text(L10n.issueKindTitle(issue.kind))
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(issue.title)
+                            .font(.system(size: 21, weight: .medium))
+                            .foregroundStyle(Color.black.opacity(0.92))
+                            .multilineTextAlignment(.leading)
+
+                        Text(issue.description)
+                            .font(.system(size: 14))
+                            .foregroundStyle(Color.black.opacity(0.5))
+                            .multilineTextAlignment(.leading)
+                    }
+
+                    Spacer(minLength: 10)
                 }
 
-                Text(issue.title)
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-
-                Text(issue.description)
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
-
-                Text(issue.recommendation)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(.primary)
+                HStack {
+                    SeverityPill(severity: issue.severity)
+                    Spacer()
+                }
             }
-            .padding(16)
+            .padding(24)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: 18)
-                    .fill(isSelected ? issue.severity.overlayColor.opacity(0.14) : Color.white.opacity(0.72))
+                RoundedRectangle(cornerRadius: 30, style: .continuous)
+                    .fill(isSelected ? Color.white.opacity(0.98) : Color.white.opacity(0.82))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 30, style: .continuous)
+                    .stroke(isSelected ? issue.severity.color.opacity(0.22) : Color.black.opacity(0.05), lineWidth: 1)
             )
             .shadow(
-                color: issue.severity.overlayColor.opacity(isSelected ? 0.14 : 0.04),
-                radius: isSelected ? 16 : 8,
+                color: Color.black.opacity(isSelected ? 0.08 : 0.04),
+                radius: isSelected ? 18 : 10,
                 x: 0,
-                y: 6
+                y: 8
             )
         }
         .buttonStyle(.plain)
-        .scaleEffect(isSelected ? 0.985 : 1.0)
+        .scaleEffect(isSelected ? 0.992 : 1)
         .animation(.easeInOut(duration: 0.18), value: isSelected)
     }
 }
-=======
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
-        .padding(20)
-    }
-}
 
-private struct IssueRow: View {
-    let issue: Issue
-    let isSelected: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(issue.title)
-                        .font(.headline)
-                    Text(issue.kind.rawValue)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                SeverityBadge(severity: issue.severity)
-            }
-
-            Text(issue.description)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-
-            Label(issue.recommendation, systemImage: "wand.and.stars")
-                .font(.footnote)
-                .foregroundStyle(.primary)
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(isSelected ? issue.severity.color.opacity(0.12) : Color.white.opacity(0.7))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(isSelected ? issue.severity.color : Color.black.opacity(0.06), lineWidth: isSelected ? 2 : 1)
-        )
-    }
-}
-
-private struct SeverityBadge: View {
+private struct SeverityPill: View {
     let severity: IssueSeverity
 
     var body: some View {
         Text(severity.title)
-            .font(.caption.bold())
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(severity.color.opacity(0.16))
+            .font(.system(size: 12, weight: .semibold))
             .foregroundStyle(severity.color)
-            .clipShape(Capsule())
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .background(
+                Capsule(style: .continuous)
+                    .fill(severity.color.opacity(0.12))
+            )
     }
 }
-
-<<<<<<< ours
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
 #endif

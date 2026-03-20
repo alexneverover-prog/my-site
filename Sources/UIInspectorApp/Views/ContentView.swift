@@ -1,44 +1,50 @@
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
 #if canImport(AppKit)
 import SwiftUI
 import UniformTypeIdentifiers
-=======
-#if os(macOS)
-import SwiftUI
->>>>>>> theirs
-=======
-#if os(macOS)
-import SwiftUI
->>>>>>> theirs
-=======
-#if os(macOS)
-import SwiftUI
->>>>>>> theirs
 
 struct ContentView: View {
     @ObservedObject var viewModel: InspectorViewModel
 
     var body: some View {
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-        VStack(spacing: 0) {
-            ToolbarView(viewModel: viewModel)
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color.white,
+                    Color(red: 0.965, green: 0.969, blue: 0.985)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
 
-            HStack(spacing: 0) {
-                UploadPanel(viewModel: viewModel)
-                    .frame(width: 290)
+            RoundedRectangle(cornerRadius: 34, style: .continuous)
+                .fill(Color.white.opacity(0.74))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 34, style: .continuous)
+                        .stroke(Color.black.opacity(0.06), lineWidth: 1)
+                )
+                .shadow(color: Color.black.opacity(0.08), radius: 40, x: 0, y: 14)
+                .padding(10)
 
-                ScreenshotCanvas(viewModel: viewModel)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            VStack(spacing: 0) {
+                ToolbarView(viewModel: viewModel)
 
-                IssuesSidebar(viewModel: viewModel)
-                    .frame(width: 350)
+                Divider()
+                    .overlay(Color.black.opacity(0.04))
+
+                HStack(spacing: 0) {
+                    IssuesSidebar(viewModel: viewModel)
+                        .frame(width: 360)
+
+                    Divider()
+                        .overlay(Color.black.opacity(0.04))
+
+                    ScreenshotCanvas(viewModel: viewModel)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
             }
+            .padding(10)
         }
-        .background(Color(nsColor: .windowBackgroundColor))
         .fileImporter(
             isPresented: $viewModel.isImporting,
             allowedContentTypes: [.image],
@@ -56,44 +62,4 @@ struct ContentView: View {
         }
     }
 }
-=======
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
-        NavigationStack {
-            VStack(spacing: 0) {
-                ToolbarView(viewModel: viewModel)
-                    .padding(20)
-                    .background(.ultraThinMaterial)
-
-                HStack(spacing: 0) {
-                    UploadPanel(viewModel: viewModel)
-                        .frame(minWidth: 280, maxWidth: 320)
-                        .background(Color(nsColor: .windowBackgroundColor))
-
-                    Divider()
-
-                    ScreenshotCanvas(viewModel: viewModel)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.black.opacity(0.02))
-
-                    Divider()
-
-                    IssuesSidebar(viewModel: viewModel)
-                        .frame(minWidth: 320, maxWidth: 360)
-                        .background(Color(nsColor: .controlBackgroundColor))
-                }
-            }
-        }
-    }
-}
-
-<<<<<<< ours
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
 #endif

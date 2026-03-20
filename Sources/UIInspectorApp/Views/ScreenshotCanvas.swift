@@ -1,123 +1,205 @@
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
 #if canImport(AppKit)
 import SwiftUI
-=======
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
-#if os(macOS)
-import SwiftUI
-#if os(macOS)
-import AppKit
-import AVFoundation
-#endif
-<<<<<<< ours
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
 
 struct ScreenshotCanvas: View {
     @ObservedObject var viewModel: InspectorViewModel
 
     var body: some View {
         GeometryReader { proxy in
+            let selection = viewModel.selectedIssue
+
             ZStack {
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-                RoundedRectangle(cornerRadius: 28)
-                    .fill(Color(nsColor: .underPageBackgroundColor))
+                Color.clear
 
-                if let image = viewModel.screenshot {
-                    let layout = FittedImageLayout(imageSize: image.size, containerSize: proxy.size)
-                    let hasSelection = viewModel.selectedIssueID != nil
+                RoundedRectangle(cornerRadius: 36, style: .continuous)
+                    .fill(Color(red: 0.965, green: 0.965, blue: 0.975))
+                    .padding(28)
 
-                    ZStack(alignment: .topLeading) {
-                        Image(nsImage: image)
-                            .resizable()
-                            .interpolation(.high)
-                            .frame(width: layout.drawSize.width, height: layout.drawSize.height)
-                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                VStack(alignment: .leading, spacing: 22) {
+                    header(selection: selection)
 
-                        ForEach(sortedIssues(viewModel.issues, selectedID: viewModel.selectedIssueID)) { issue in
-                            let rect = layout.project(issue.frame)
-                            let isSelected = issue.id == viewModel.selectedIssueID
+                    if let image = viewModel.screenshot {
+                        contentLayout(for: image, in: proxy.size, selection: selection)
+                    } else {
+                        emptyState
+                    }
+                }
+                .padding(68)
+            }
+        }
+    }
 
-                            RoundedRectangle(cornerRadius: 14)
-                                .fill(issue.severity.overlayColor.opacity(overlayOpacity(isSelected: isSelected, hasSelection: hasSelection)))
-                                .frame(width: max(rect.width, 24), height: max(rect.height, 24))
-                                .offset(x: rect.minX, y: rect.minY)
-                                .shadow(
-                                    color: issue.severity.overlayColor.opacity(isSelected ? 0.24 : 0),
-                                    radius: isSelected ? 16 : 0,
-                                    x: 0,
-                                    y: 4
-                                )
-                                .scaleEffect(isSelected ? 1.02 : 1.0)
-                                .animation(.easeInOut(duration: 0.2), value: viewModel.selectedIssueID)
+    @ViewBuilder
+    private func contentLayout(for image: NSImage, in size: CGSize, selection: Issue?) -> some View {
+        let outerSize = canvasOuterSize(for: size)
+
+        HStack(alignment: .top, spacing: 22) {
+            screenshotPreview(image: image, outerSize: outerSize, selection: selection)
+
+            VStack(spacing: 18) {
+                detailCard(title: L10n.alignmentScoreTitle) {
+                    let score = max(68, 100 - viewModel.issues.count * 2)
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack(alignment: .firstTextBaseline) {
+                            Text(L10n.alignmentScoreTitle)
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundStyle(Color.black.opacity(0.82))
+                            Spacer()
+                            Text("\(score)%")
+                                .font(.system(size: 22, weight: .medium))
+                                .foregroundStyle(Color.black.opacity(0.45))
+                        }
+
+                        ZStack(alignment: .leading) {
+                            Capsule(style: .continuous)
+                                .fill(Color.black.opacity(0.08))
+                                .frame(height: 16)
+
+                            Capsule(style: .continuous)
+                                .fill(Color.black.opacity(0.92))
+                                .frame(width: CGFloat(score) * 2.4, height: 16)
                         }
                     }
-                    .frame(width: layout.drawSize.width, height: layout.drawSize.height, alignment: .topLeading)
-                    .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
-                } else {
-                    VStack(spacing: 12) {
-                        Image(systemName: "rectangle.and.text.magnifyingglass")
-                            .font(.system(size: 44))
-                            .foregroundStyle(.secondary)
-                        Text(L10n.previewTitle)
-                            .font(.title3.weight(.semibold))
-                        Text(L10n.previewDescription)
-                            .font(.system(size: 14))
-                            .foregroundStyle(.secondary)
-                    }
-=======
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
-                RoundedRectangle(cornerRadius: 24)
-                    .fill(Color.white)
-                    .shadow(color: .black.opacity(0.05), radius: 20, y: 8)
+                }
 
-                if let loadedImage = viewModel.loadedImage {
-                    ZoomableImage(image: loadedImage)
-                        .overlay {
-                            IssueOverlay(
-                                elements: viewModel.elements,
-                                issues: viewModel.issues,
-                                selectedIssue: viewModel.selectedIssue,
-                                canvasSize: proxy.size
-                            )
+                detailCard(title: L10n.recommendationsTitle) {
+                    VStack(alignment: .leading, spacing: 18) {
+                        if let selection {
+                            Text(selection.recommendation)
+                                .font(.system(size: 17, weight: .regular))
+                                .foregroundStyle(Color.black.opacity(0.8))
+
+                            Text(selection.description)
+                                .font(.system(size: 14))
+                                .foregroundStyle(Color.black.opacity(0.45))
+                        } else {
+                            Text(L10n.noResultsDescription)
+                                .font(.system(size: 16))
+                                .foregroundStyle(Color.black.opacity(0.5))
                         }
-                        .clipShape(RoundedRectangle(cornerRadius: 24))
-                        .padding(20)
-                } else {
-                    ContentUnavailableView(
-                        "Нет скриншота",
-                        systemImage: "photo.on.rectangle.angled",
-                        description: Text("После загрузки интерфейса здесь появится превью и overlay с подсветкой проблемных зон.")
-                    )
-<<<<<<< ours
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
+                    }
                 }
             }
-            .padding(24)
+            .frame(width: min(320, size.width * 0.28))
         }
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
-        .background(Color(nsColor: .textBackgroundColor))
+    }
+
+    private func header(selection: Issue?) -> some View {
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 10) {
+                Text(L10n.currentScreenTitleLabel)
+                    .font(.system(size: 22, weight: .semibold, design: .default))
+                    .tracking(6)
+                    .foregroundStyle(Color.black.opacity(0.55))
+                    .multilineTextAlignment(.leading)
+
+                Text(viewModel.currentScreenTitle)
+                    .font(.system(size: 44, weight: .semibold))
+                    .tracking(-1.5)
+                    .foregroundStyle(Color.black.opacity(0.94))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+
+            Spacer()
+
+            Text(viewModel.findingsCountText)
+                .font(.system(size: 24, weight: .medium))
+                .foregroundStyle(Color(red: 0.0, green: 0.43, blue: 0.89))
+                .padding(.horizontal, 24)
+                .padding(.vertical, 16)
+                .background(
+                    Capsule(style: .continuous)
+                        .fill(Color(red: 0.89, green: 0.93, blue: 1.0))
+                )
+        }
+    }
+
+    private func screenshotPreview(image: NSImage, outerSize: CGSize, selection: Issue?) -> some View {
+        let layout = FittedImageLayout(
+            imageSize: image.size,
+            containerSize: CGSize(width: outerSize.width - 80, height: outerSize.height - 80)
+        )
+
+        return ZStack {
+            RoundedRectangle(cornerRadius: 34, style: .continuous)
+                .fill(Color.white.opacity(0.9))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 34, style: .continuous)
+                        .stroke(Color.black.opacity(0.05), lineWidth: 1)
+                )
+
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(Color.white)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 28, style: .continuous)
+                        .stroke(Color.black.opacity(0.04), lineWidth: 1)
+                )
+                .padding(42)
+
+            ZStack(alignment: .topLeading) {
+                Image(nsImage: image)
+                    .resizable()
+                    .interpolation(.high)
+                    .frame(width: layout.drawSize.width, height: layout.drawSize.height)
+                    .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+
+                ForEach(sortedIssues(viewModel.issues, selectedID: viewModel.selectedIssueID)) { issue in
+                    let rect = layout.project(issue.frame)
+                    let isSelected = issue.id == viewModel.selectedIssueID
+
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(issue.severity.overlayColor.opacity(overlayOpacity(isSelected: isSelected, hasSelection: selection != nil)))
+                        .frame(width: max(rect.width, 28), height: max(rect.height, 28))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .stroke(isSelected ? issue.severity.color.opacity(0.9) : .white.opacity(0.5), lineWidth: isSelected ? 2.5 : 1)
+                        )
+                        .offset(x: rect.minX, y: rect.minY)
+                        .shadow(color: issue.severity.color.opacity(isSelected ? 0.2 : 0), radius: 14, x: 0, y: 6)
+                        .animation(.easeInOut(duration: 0.2), value: viewModel.selectedIssueID)
+                }
+            }
+            .frame(width: layout.drawSize.width, height: layout.drawSize.height, alignment: .topLeading)
+        }
+        .frame(width: outerSize.width, height: outerSize.height)
+    }
+
+    private func detailCard<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 18) {
+            Text(title)
+                .font(.system(size: 18, weight: .medium))
+                .foregroundStyle(Color.black.opacity(0.9))
+
+            content()
+        }
+        .padding(24)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(Color.white.opacity(0.92))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .stroke(Color.black.opacity(0.05), lineWidth: 1)
+        )
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 24) {
+            UploadPanel(viewModel: viewModel)
+                .frame(maxWidth: 520)
+
+            VStack(spacing: 10) {
+                Text(L10n.previewTitle)
+                    .font(.system(size: 26, weight: .semibold))
+                Text(L10n.previewDescription)
+                    .font(.system(size: 15))
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func sortedIssues(_ issues: [Issue], selectedID: Issue.ID?) -> [Issue] {
@@ -138,7 +220,14 @@ struct ScreenshotCanvas: View {
             return 0.34
         }
 
-        return hasSelection ? 0.09 : 0.16
+        return hasSelection ? 0.1 : 0.17
+    }
+
+    private func canvasOuterSize(for size: CGSize) -> CGSize {
+        CGSize(
+            width: min(max(size.width * 0.44, 380), 520),
+            height: min(max(size.height * 0.58, 440), 760)
+        )
     }
 }
 
@@ -151,8 +240,8 @@ private struct FittedImageLayout {
             return 1
         }
 
-        let availableWidth = max(containerSize.width - 48, 1)
-        let availableHeight = max(containerSize.height - 48, 1)
+        let availableWidth = max(containerSize.width, 1)
+        let availableHeight = max(containerSize.height, 1)
         return min(availableWidth / imageSize.width, availableHeight / imageSize.height)
     }
 
@@ -169,86 +258,4 @@ private struct FittedImageLayout {
         )
     }
 }
-=======
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
-    }
-}
-
-private struct ZoomableImage: View {
-    let image: PlatformImage
-
-    var body: some View {
-        #if os(macOS)
-        Image(nsImage: image)
-            .resizable()
-            .scaledToFit()
-        #else
-        Color.clear
-        #endif
-    }
-}
-
-private struct IssueOverlay: View {
-    let elements: [UIElement]
-    let issues: [Issue]
-    let selectedIssue: Issue?
-    let canvasSize: CGSize
-
-    var body: some View {
-        GeometryReader { geo in
-            let imageRect = AVMakeRect(aspectRatio: contentAspectRatio, insideRect: geo.frame(in: .local))
-            ZStack {
-                ForEach(issues) { issue in
-                    if let element = element(for: issue) {
-                        let rect = scaledRect(for: element.frame, imageRect: imageRect)
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(issue.severity.color, lineWidth: selectedIssue?.id == issue.id ? 4 : 2)
-                            .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(issue.severity.color.opacity(selectedIssue?.id == issue.id ? 0.22 : 0.10))
-                            )
-                            .frame(width: rect.width, height: rect.height)
-                            .position(x: rect.midX, y: rect.midY)
-                            .animation(.easeInOut(duration: 0.2), value: selectedIssue?.id)
-                    }
-                }
-            }
-        }
-    }
-
-    private var contentAspectRatio: CGSize {
-        let union = elements.map(\.frame).reduce(CGRect.null) { $0.union($1) }
-        guard !union.isNull else { return CGSize(width: 16, height: 10) }
-        return union.size
-    }
-
-    private func element(for issue: Issue) -> UIElement? {
-        guard let elementID = issue.elementID else { return nil }
-        return elements.first(where: { $0.id == elementID })
-    }
-
-    private func scaledRect(for rect: CGRect, imageRect: CGRect) -> CGRect {
-        let union = elements.map(\.frame).reduce(CGRect.null) { $0.union($1) }
-        guard !union.isNull else { return .zero }
-        let scaleX = imageRect.width / union.width
-        let scaleY = imageRect.height / union.height
-        return CGRect(
-            x: imageRect.minX + (rect.minX - union.minX) * scaleX,
-            y: imageRect.minY + (rect.minY - union.minY) * scaleY,
-            width: rect.width * scaleX,
-            height: rect.height * scaleY
-        )
-    }
-}
-
-<<<<<<< ours
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
 #endif

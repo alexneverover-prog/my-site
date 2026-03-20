@@ -1,6 +1,3 @@
-<<<<<<< ours
-<<<<<<< ours
-<<<<<<< ours
 #if canImport(AppKit)
 import AppKit
 import Combine
@@ -29,6 +26,14 @@ final class InspectorViewModel: ObservableObject {
 
     var warningCount: Int {
         issues.filter { $0.severity == .warning }.count
+    }
+
+    var currentScreenTitle: String {
+        screenshot == nil ? L10n.currentScreenPlaceholder : L10n.currentScreenDetected
+    }
+
+    var findingsCountText: String {
+        L10n.findingsCount(issues.count)
     }
 
     func openImporter() {
@@ -136,108 +141,4 @@ final class InspectorViewModel: ObservableObject {
         return nil
     }
 }
-=======
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
-#if os(macOS)
-import Foundation
-import SwiftUI
-#if os(macOS)
-import AppKit
-import UniformTypeIdentifiers
-#endif
-
-@MainActor
-final class InspectorViewModel: ObservableObject {
-    @Published var loadedImage: PlatformImage?
-    @Published var elements: [UIElement] = []
-    @Published var issues: [Issue] = []
-    @Published var selectedIssueID: Issue.ID?
-    @Published var isAnalyzing = false
-    @Published var dragIsActive = false
-    @Published var analysisSummary = "Загрузите скриншот и запустите анализ."
-
-    private let analyzer: UIAnalyzing
-
-    init(analyzer: UIAnalyzing = UIAnalyzer()) {
-        self.analyzer = analyzer
-    }
-
-    var selectedIssue: Issue? {
-        issues.first { $0.id == selectedIssueID }
-    }
-
-    func selectIssue(_ issue: Issue) {
-        selectedIssueID = issue.id
-    }
-
-    func analyze() {
-        guard let loadedImage else {
-            analysisSummary = "Сначала загрузите скриншот интерфейса."
-            return
-        }
-
-        isAnalyzing = true
-        analysisSummary = "Анализируем отступы, типографику и контраст…"
-
-        Task {
-            let result = await analyzer.analyze(image: loadedImage)
-            elements = result.elements
-            issues = result.issues
-            selectedIssueID = result.issues.first?.id
-            isAnalyzing = false
-            analysisSummary = result.issues.isEmpty
-                ? "Критичных UX/UI проблем не найдено."
-                : "Найдено проблем: \(result.issues.count)"
-        }
-    }
-
-    #if os(macOS)
-    func openImagePicker() {
-        let panel = NSOpenPanel()
-        panel.canChooseDirectories = false
-        panel.allowsMultipleSelection = false
-        panel.allowedContentTypes = [.png, .jpeg, .tiff, .image]
-
-        guard panel.runModal() == .OK, let url = panel.url, let image = NSImage(contentsOf: url) else {
-            return
-        }
-
-        setImage(image)
-    }
-
-    func handleDrop(providers: [NSItemProvider]) -> Bool {
-        guard let provider = providers.first(where: { $0.canLoadObject(ofClass: NSImage.self) }) else {
-            return false
-        }
-
-        provider.loadObject(ofClass: NSImage.self) { [weak self] image, _ in
-            guard let image = image as? NSImage else { return }
-            Task { @MainActor in
-                self?.setImage(image)
-            }
-        }
-
-        return true
-    }
-
-    private func setImage(_ image: NSImage) {
-        loadedImage = image
-        elements = []
-        issues = []
-        selectedIssueID = nil
-        analysisSummary = "Скриншот загружен. Нажмите Analyze."
-    }
-    #endif
-}
-
-<<<<<<< ours
-<<<<<<< ours
->>>>>>> theirs
-=======
->>>>>>> theirs
-=======
->>>>>>> theirs
 #endif
