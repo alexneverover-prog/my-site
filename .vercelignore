@@ -1,0 +1,10 @@
+.build
+.git
+.vscode
+Assets
+Sources
+UIInspector.app
+UIInspector.xcodeproj
+Package.swift
+App Icon Template-3.png
+moy-korporativ-discovery.md

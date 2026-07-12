@@ -6,8 +6,9 @@
   <title>AI UI Inspector</title>
   <meta
     name="description"
-    content="AI UI Inspector — демо-инструмент для автоматического UI/UX-разбора скриншотов с подсветкой зон риска и рекомендациями."
+    content="AI UI Inspector — AI-анализ интерфейсов по скриншоту с подсветкой проблем и конкретными рекомендациями."
   />
+  <meta name="ui-inspector-api" content="https://my-site-omega-ruby.vercel.app/api/analyze" />
   <link rel="stylesheet" href="./styles.css" />
   <style>
     html {
@@ -18,8 +19,17 @@
     body {
       overflow-x: hidden;
       background:
-        linear-gradient(180deg, rgba(245, 247, 251, 0.95) 0%, #ffffff 32rem),
+        linear-gradient(180deg, #f7f8ff 0%, #ffffff 32rem),
         #ffffff;
+      color: #252842;
+    }
+
+    .text-ink {
+      color: #252842;
+    }
+
+    .bg-ink {
+      background-color: #272a48;
     }
 
     * {
@@ -42,27 +52,29 @@
     }
 
     .button-primary {
-      background: #08090b;
+      background: #5b5bd6;
       color: #ffffff;
+      box-shadow: 0 8px 20px rgba(91, 91, 214, 0.2);
     }
 
     .button-primary:hover {
-      background: #191b20;
+      background: #4c4cc5;
     }
 
     .button-secondary {
-      border: 1px solid rgba(8, 9, 11, 0.16);
+      border: 1px solid rgba(91, 91, 214, 0.22);
       background: #ffffff;
-      color: #08090b;
+      color: #3f4380;
     }
 
     .button-secondary:hover {
-      border-color: rgba(8, 9, 11, 0.38);
+      border-color: rgba(91, 91, 214, 0.48);
+      background: #f8f8ff;
     }
 
     .button-inverse {
       background: #ffffff;
-      color: #08090b;
+      color: #252842;
     }
 
     .button-inverse:hover {
@@ -112,6 +124,29 @@
       opacity: 0.7;
     }
 
+    .empty-stage {
+      min-height: 360px;
+      background: #f7f8ff;
+    }
+
+    .empty-upload-icon {
+      display: flex;
+      width: 3.5rem;
+      height: 3.5rem;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(91, 91, 214, 0.18);
+      border-radius: 1rem;
+      background: #ffffff;
+      color: #5b5bd6;
+      box-shadow: 0 10px 30px rgba(91, 91, 214, 0.12);
+    }
+
+    .signals-empty {
+      min-height: 360px;
+      background: #fbfbfe;
+    }
+
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
@@ -147,14 +182,14 @@
         <div class="max-w-2xl">
           <div class="mb-4 inline-flex items-center gap-2 rounded-full bg-[rgba(56,167,255,0.2)] px-3 py-2 text-xs font-medium text-[#38a7ff] sm:mb-5 sm:gap-2.5 sm:px-4 sm:py-2.5 sm:text-sm">
             <span class="h-2 w-2 rounded-full bg-[#38a7ff] sm:h-2.5 sm:w-2.5"></span>
-            Демо авто-разбора
+            AI-анализ интерфейсов
           </div>
 
           <h1 class="text-4xl font-semibold leading-[1.02] tracking-tight sm:text-5xl lg:text-6xl">
-            Проверьте визуальные сигналы по скриншоту.
+            Найдите UI/UX-проблемы по скриншоту.
           </h1>
           <p class="mt-4 max-w-xl text-base leading-6 text-muted sm:mt-5 sm:text-lg sm:leading-7">
-            Загрузите экран. Демо-режим отметит сложные зоны, объяснит возможный риск и предложит исправления.
+            Vision-модель изучит интерфейс, привяжет замечания к видимым элементам и предложит конкретные исправления.
           </p>
 
           <div class="mt-5 flex flex-col gap-3 sm:mt-7 sm:flex-row">
@@ -163,7 +198,7 @@
               <input id="hero-upload" type="file" accept="image/*" class="hidden" />
             </label>
             <a href="#inspector" class="button-base button-secondary hidden items-center justify-center px-5 text-sm sm:inline-flex">
-              Посмотреть демо
+              Открыть инспектор
             </a>
           </div>
 
@@ -237,9 +272,9 @@
         <div class="mb-5 flex flex-col gap-4 border-y border-black/10 py-5 md:flex-row md:items-center md:justify-between">
           <div>
             <p class="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Рабочая область</p>
-            <h2 class="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Загрузите скриншот и получите авто-разбор.</h2>
+            <h2 class="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Загрузите скриншот и получите AI-разбор.</h2>
           </div>
-          <label id="upload-control" class="button-base button-primary inline-flex w-full cursor-pointer items-center justify-center px-5 text-sm sm:w-auto">
+          <label id="upload-control" class="button-base button-primary hidden w-full cursor-pointer items-center justify-center px-5 text-sm sm:w-auto">
             <span id="upload-label">Загрузить свой экран</span>
             <input id="demo-upload" type="file" accept="image/*" class="hidden" />
           </label>
@@ -251,25 +286,40 @@
               <div>
                 <div class="flex flex-wrap items-center gap-2">
                   <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Анализируемый экран</p>
-                  <span id="analysis-status" class="rounded bg-blue/10 px-2 py-1 text-[0.68rem] font-semibold text-blue">Демо-пример</span>
+                  <span id="analysis-status" class="rounded bg-blue/10 px-2 py-1 text-[0.68rem] font-semibold text-blue">Ожидает загрузки</span>
                 </div>
-                <p id="screen-title" class="mt-1 text-xl font-semibold tracking-tight">Демо: пример интерфейса</p>
-                <p id="screen-context" class="mt-1 text-xs leading-5 text-muted">Выберите файл, чтобы заменить пример своим скриншотом.</p>
+                <p id="screen-title" class="mt-1 text-xl font-semibold tracking-tight">Добавьте экран</p>
+                <p id="screen-context" class="mt-1 text-xs leading-5 text-muted">Загрузите сюда свой скриншот интерфейса.</p>
               </div>
-              <div class="flex flex-wrap items-center gap-2">
+              <div id="result-meta" class="hidden flex-wrap items-center gap-2">
                 <span id="findings-pill" class="rounded-md bg-panel px-3 py-1.5 text-xs font-semibold text-ink">3 сигнала</span>
-                <span id="score-pill" class="rounded-md bg-blue/10 px-3 py-1.5 text-xs font-semibold text-blue">Эвристический разбор</span>
+                <span id="score-pill" class="rounded-md bg-blue/10 px-3 py-1.5 text-xs font-semibold text-blue">AI-анализ</span>
               </div>
             </div>
 
             <div
               id="dropzone"
-              class="relative rounded-lg border border-dashed border-black/20 bg-panel p-2 transition sm:p-3"
+              class="relative rounded-lg border border-dashed border-blue/20 bg-white p-2 transition sm:p-3"
             >
-              <div class="rounded-lg border border-black/10 bg-white p-2">
+              <div id="inspector-empty" class="empty-stage flex flex-col items-center justify-center rounded-lg px-5 py-5 text-center">
+                <div class="empty-upload-icon" aria-hidden="true">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 16V4" />
+                    <path d="m7 9 5-5 5 5" />
+                    <path d="M20 15v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4" />
+                  </svg>
+                </div>
+                <p class="mt-5 text-xl font-semibold text-ink">Добавьте экран</p>
+                <p class="mt-2 max-w-sm text-sm leading-6 text-muted">Загрузите сюда свой скриншот, чтобы получить содержательный разбор интерфейса.</p>
+                <label for="demo-upload" class="button-base button-primary mt-5 inline-flex cursor-pointer items-center justify-center px-5 text-sm">Загрузить скриншот</label>
+                <p class="mt-3 text-xs text-muted">PNG, JPG или WebP</p>
+                <p class="mt-1 max-w-sm text-[0.68rem] leading-4 text-muted">Не загружайте конфиденциальные данные: скриншот передаётся Gemini для анализа.</p>
+              </div>
+
+              <div id="result-stage" class="hidden rounded-lg border border-black/10 bg-white p-2">
                 <div class="mb-2 flex items-center justify-between gap-2">
                   <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Загруженный скриншот</p>
-                  <span class="rounded bg-amber/10 px-2 py-1 text-xs font-semibold text-amber">Зоны риска</span>
+                  <span class="rounded bg-blue/10 px-2 py-1 text-xs font-semibold text-blue">Зоны проверки</span>
                 </div>
                 <div id="before-stage" class="relative flex min-h-[280px] items-center justify-center overflow-hidden rounded-md bg-white sm:min-h-[520px]">
                   <img id="before-image" alt="Скриншот с подсветкой сигналов" class="max-h-[680px] w-auto max-w-full rounded-md object-contain" />
@@ -281,13 +331,13 @@
 
               <div id="analysis-state" class="absolute inset-3 z-20 hidden flex-col items-center justify-center rounded-lg bg-white/95 px-5 text-center" role="status" aria-live="polite">
                 <span class="analysis-spinner h-8 w-8 rounded-full border-2 border-blue/20 border-t-blue"></span>
-                <p class="mt-4 text-base font-semibold text-ink">Выполняем авто-разбор</p>
-                <p class="mt-2 max-w-sm text-sm leading-6 text-muted">Измеряем концентрацию деталей, цветовые акценты и распределение визуального веса.</p>
+                <p class="mt-4 text-base font-semibold text-ink">AI анализирует интерфейс</p>
+                <p class="mt-2 max-w-sm text-sm leading-6 text-muted">Изучаем структуру экрана, читаем элементы и проверяем заметные UI/UX-риски.</p>
               </div>
 
               <div id="drop-hint" class="pointer-events-none absolute inset-3 hidden items-center justify-center rounded-lg bg-blue/10">
                 <div class="rounded-lg border border-blue/20 bg-white px-5 py-4 text-center">
-                  <p class="text-sm font-semibold text-ink">Отпустите файл, чтобы начать авто-разбор</p>
+                  <p class="text-sm font-semibold text-ink">Отпустите файл, чтобы начать AI-анализ</p>
                 </div>
               </div>
             </div>
@@ -296,11 +346,11 @@
           <aside class="rounded-lg border border-black/10 bg-white p-4 shadow-tight" aria-live="polite">
             <div class="flex items-center justify-between gap-3">
               <p class="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Сигналы для проверки</p>
-              <span id="issue-count" class="rounded-md bg-panel px-2.5 py-1 text-xs font-semibold text-muted">3</span>
+              <span id="issue-count" class="hidden rounded-md bg-panel px-2.5 py-1 text-xs font-semibold text-muted">0</span>
             </div>
             <div id="issues" class="mt-4 space-y-2"></div>
 
-            <div id="priority-card" class="mt-5 rounded-lg border border-l-4 bg-red/5 p-4">
+            <div id="priority-card" class="mt-5 hidden rounded-lg border border-l-4 bg-red/5 p-4">
               <div class="flex items-center justify-between gap-3">
                 <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Что проверить первым</p>
                 <span id="priority-severity" class="severity-label severity-critical">Критично</span>
@@ -318,14 +368,14 @@
       <div class="mx-auto max-w-7xl">
         <div class="max-w-2xl">
           <p class="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Возможности</p>
-          <h2 class="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Только то, что нужно для автоматического UI-разбора.</h2>
+          <h2 class="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Только то, что нужно для содержательного UI-разбора.</h2>
         </div>
 
         <div class="mt-8 grid gap-3 md:grid-cols-3">
           <article class="h-full rounded-lg border border-black/10 bg-white p-5">
             <p class="text-sm font-semibold text-blue">01</p>
             <h3 class="mt-4 text-lg font-semibold tracking-tight">Подсветка зон риска</h3>
-            <p class="mt-2 text-sm leading-6 text-muted">Каждый сигнал привязан к конкретной области скриншота и объясняет измеримое визуальное свойство.</p>
+            <p class="mt-2 text-sm leading-6 text-muted">Каждое замечание привязано к конкретной области скриншота и подтверждено видимыми элементами.</p>
           </article>
           <article class="h-full rounded-lg border border-black/10 bg-white p-5">
             <p class="text-sm font-semibold text-blue">02</p>
@@ -346,7 +396,7 @@
         <div>
           <p class="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Поток работы</p>
           <h2 class="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Быстрый разбор без лишних экранов.</h2>
-          <p class="mt-4 text-base leading-7 text-muted">Страница работает как демо-инструмент: загрузка, авто-разбор, подсветка и рекомендации. Весь сценарий проходит прямо в браузере.</p>
+          <p class="mt-4 text-base leading-7 text-muted">Загрузите экран, дождитесь AI-анализа и переходите между замечаниями, подсвеченными на скриншоте.</p>
         </div>
         <div class="grid gap-3 sm:grid-cols-2">
           <div class="h-full rounded-lg border border-black/10 bg-white p-5">
@@ -354,8 +404,8 @@
             <p class="mt-3 text-lg font-semibold">Загрузите скриншот продукта</p>
           </div>
           <div class="h-full rounded-lg border border-black/10 bg-white p-5">
-            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Авто-разбор</p>
-            <p class="mt-3 text-lg font-semibold">Получите измеримые сигналы и зоны проверки</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">AI-разбор</p>
+            <p class="mt-3 text-lg font-semibold">Получите доказательные замечания и зоны проверки</p>
           </div>
           <div class="h-full rounded-lg border border-black/10 bg-white p-5">
             <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Рекомендации</p>
@@ -383,46 +433,6 @@
   </main>
 
   <script>
-    const defaultImage = "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1040' height='660' viewBox='0 0 1040 660'%3E%3Crect width='1040' height='660' rx='28' fill='%23f6f7fb'/%3E%3Crect x='44' y='42' width='952' height='72' rx='20' fill='white' stroke='%23dfe3eb'/%3E%3Crect x='80' y='68' width='184' height='20' rx='10' fill='%23191b20'/%3E%3Crect x='760' y='62' width='160' height='32' rx='16' fill='%232563eb'/%3E%3Crect x='44' y='146' width='300' height='420' rx='24' fill='white' stroke='%23dfe3eb'/%3E%3Crect x='78' y='184' width='190' height='22' rx='11' fill='%23191b20'/%3E%3Crect x='78' y='235' width='220' height='14' rx='7' fill='%23bfc5d0'/%3E%3Crect x='78' y='276' width='230' height='94' rx='18' fill='%23f0f2f6'/%3E%3Crect x='78' y='398' width='198' height='14' rx='7' fill='%23c9ced8'/%3E%3Crect x='78' y='438' width='150' height='38' rx='19' fill='%23e8edf7'/%3E%3Crect x='388' y='146' width='608' height='420' rx='24' fill='white' stroke='%23dfe3eb'/%3E%3Crect x='430' y='188' width='260' height='28' rx='14' fill='%23191b20'/%3E%3Crect x='430' y='238' width='440' height='16' rx='8' fill='%23c7ccd6'/%3E%3Crect x='430' y='292' width='220' height='150' rx='22' fill='%23f3f5f8'/%3E%3Crect x='690' y='292' width='220' height='150' rx='22' fill='%23f3f5f8'/%3E%3Crect x='430' y='482' width='190' height='44' rx='22' fill='%23191b20'/%3E%3Crect x='654' y='488' width='140' height='20' rx='10' fill='%23cbd1dc'/%3E%3C/svg%3E";
-
-    const defaultIssues = [
-      {
-        id: 'cta',
-        title: 'Слабое основное действие',
-        description: 'Кнопка конкурирует с вторичными элементами и не собирает внимание.',
-        recommendation: 'Увеличьте контраст кнопки, сократите соседний текст и оставьте вокруг действия больше воздуха.',
-        severity: 'critical',
-        score: 82,
-        x: 0.72,
-        y: 0.08,
-        width: 0.18,
-        height: 0.09,
-      },
-      {
-        id: 'spacing',
-        title: 'Неровный ритм карточек',
-        description: 'Блоки выглядят собранными из разных сеток: отступы и высоты не совпадают.',
-        recommendation: 'Приведите карточки к шагу 24 px и выровняйте заголовки по одной вертикальной оси.',
-        severity: 'warning',
-        score: 86,
-        x: 0.41,
-        y: 0.43,
-        width: 0.47,
-        height: 0.26,
-      },
-      {
-        id: 'contrast',
-        title: 'Слабый вспомогательный текст',
-        description: 'Подписи и пояснения теряются на светлом фоне.',
-        recommendation: 'Поднимите контраст вторичного текста и ограничьте количество серых оттенков.',
-        severity: 'warning',
-        score: 88,
-        x: 0.07,
-        y: 0.35,
-        width: 0.23,
-        height: 0.18,
-      },
-    ];
 
     const elements = {
       inspector: document.getElementById('inspector'),
@@ -430,10 +440,13 @@
       upload: document.getElementById('demo-upload'),
       uploadControl: document.getElementById('upload-control'),
       uploadLabel: document.getElementById('upload-label'),
+      resultMeta: document.getElementById('result-meta'),
       dropzone: document.getElementById('dropzone'),
       dropHint: document.getElementById('drop-hint'),
       analysisState: document.getElementById('analysis-state'),
       analysisStatus: document.getElementById('analysis-status'),
+      inspectorEmpty: document.getElementById('inspector-empty'),
+      resultStage: document.getElementById('result-stage'),
       beforeImage: document.getElementById('before-image'),
       beforeStage: document.getElementById('before-stage'),
       overlays: document.getElementById('overlays'),
@@ -450,11 +463,13 @@
       priorityFix: document.getElementById('priority-fix'),
     };
 
-    let currentIssues = [...defaultIssues];
-    let selectedIssueId = currentIssues[0].id;
+    let currentIssues = [];
+    let selectedIssueId = null;
     let objectUrl = null;
     let isAnalyzing = false;
     let hasUploadedResult = false;
+    let analysisError = '';
+    let currentSummary = '';
 
     function severityMeta(severity) {
       if (severity === 'review') {
@@ -494,10 +509,10 @@
 
     function setStatus(mode) {
       const states = {
-        demo: { label: 'Демо-пример', classes: 'bg-blue/10 text-blue' },
+        empty: { label: 'Ожидает загрузки', classes: 'bg-blue/10 text-blue' },
         analyzing: { label: 'Анализируем', classes: 'bg-blue/10 text-blue' },
-        ready: { label: 'Разбор готов', classes: 'bg-green/10 text-green' },
-        error: { label: 'Ошибка файла', classes: 'bg-red/10 text-red' },
+        ready: { label: 'Проверка завершена', classes: 'bg-green/10 text-green' },
+        error: { label: 'Анализ недоступен', classes: 'bg-red/10 text-red' },
       };
       const state = states[mode];
       elements.analysisStatus.className = `rounded px-2 py-1 text-[0.68rem] font-semibold ${state.classes}`;
@@ -510,6 +525,8 @@
       elements.analysisState.classList.toggle('hidden', !active);
       elements.analysisState.classList.toggle('flex', active);
       elements.uploadControl.classList.toggle('upload-control-busy', active);
+      elements.uploadControl.classList.toggle('hidden', !active && !hasUploadedResult);
+      elements.uploadControl.classList.toggle('inline-flex', active || hasUploadedResult);
       elements.upload.disabled = active;
       elements.heroUpload.disabled = active;
       elements.uploadLabel.textContent = active ? 'Анализируем...' : hasUploadedResult ? 'Загрузить другой экран' : 'Загрузить свой экран';
@@ -517,17 +534,52 @@
     }
 
     function selectedIssue() {
-      return currentIssues.find((issue) => issue.id === selectedIssueId) || currentIssues[0];
+      return currentIssues.find((issue) => issue.id === selectedIssueId) || currentIssues[0] || null;
     }
 
     function pluralSignals(count) {
+      if (count === 0) return 'Сигналов нет';
       if (count === 1) return '1 сигнал';
       if (count >= 2 && count <= 4) return `${count} сигнала`;
       return `${count} сигналов`;
     }
 
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
     function renderIssues() {
       elements.issues.innerHTML = '';
+
+      if (!currentIssues.length) {
+        elements.issues.innerHTML = analysisError ? `
+          <div class="signals-empty flex flex-col items-center justify-center rounded-lg border border-dashed border-red/20 px-5 text-center">
+            <p class="text-sm font-semibold text-ink">Не удалось получить AI-разбор</p>
+            <p class="mt-2 max-w-sm text-xs leading-5 text-muted">${escapeHtml(analysisError)}</p>
+          </div>
+        ` : hasUploadedResult ? `
+          <div class="signals-empty flex flex-col items-center justify-center rounded-lg border border-dashed border-black/20 px-5 text-center">
+            <p class="text-sm font-semibold text-ink">Уверенных проблем не найдено</p>
+            <p class="mt-2 max-w-sm text-xs leading-5 text-muted">${escapeHtml(currentSummary || 'Модель не нашла замечаний, которые можно уверенно подтвердить по этому скриншоту.')}</p>
+          </div>
+        ` : `
+          <div class="signals-empty flex flex-col items-center justify-center rounded-lg border border-dashed border-blue/20 px-5 text-center">
+            <div class="empty-upload-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 6h13" /><path d="M8 12h13" /><path d="M8 18h13" /><path d="M3 6h.01" /><path d="M3 12h.01" /><path d="M3 18h.01" />
+              </svg>
+            </div>
+            <p class="mt-5 text-base font-semibold text-ink">Здесь появятся сигналы</p>
+            <p class="mt-2 max-w-sm text-xs leading-5 text-muted">После загрузки экран и результаты проверки будут связаны между собой.</p>
+          </div>
+        `;
+        return;
+      }
 
       currentIssues.forEach((issue, index) => {
         const meta = severityMeta(issue.severity);
@@ -545,8 +597,9 @@
             <div class="flex min-w-0 items-start gap-3">
               <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[0.65rem] font-bold text-white" style="background:${meta.overlayBorder}">${index + 1}</span>
               <div>
-                <p class="text-sm font-semibold text-ink">${issue.title}</p>
-                <p class="mt-1 text-xs leading-5 text-muted">${issue.description}</p>
+                <p class="text-sm font-semibold text-ink">${escapeHtml(issue.title)}</p>
+                <p class="mt-1 text-xs leading-5 text-muted">${escapeHtml(issue.description)}</p>
+                <p class="mt-2 text-[0.7rem] leading-5 text-ink/70"><span class="font-semibold">Видимое основание:</span> ${escapeHtml(issue.evidence)}</p>
               </div>
             </div>
             <span class="shrink-0 ${meta.pill}">${meta.label}</span>
@@ -605,13 +658,25 @@
 
     function render() {
       const issue = selectedIssue();
-      const issueIndex = currentIssues.findIndex((item) => item.id === issue.id);
-      const meta = severityMeta(issue.severity);
       const label = pluralSignals(currentIssues.length);
 
       elements.issueCount.textContent = String(currentIssues.length);
       elements.findingsPill.textContent = label;
-      elements.scorePill.textContent = 'Эвристический разбор';
+      elements.scorePill.textContent = 'AI-анализ';
+      elements.issueCount.classList.toggle('hidden', !hasUploadedResult);
+      elements.resultMeta.classList.toggle('hidden', !hasUploadedResult);
+      elements.resultMeta.classList.toggle('flex', hasUploadedResult);
+
+      if (!issue) {
+        elements.priorityCard.classList.add('hidden');
+        renderIssues();
+        renderOverlay();
+        return;
+      }
+
+      const issueIndex = currentIssues.findIndex((item) => item.id === issue.id);
+      const meta = severityMeta(issue.severity);
+      elements.priorityCard.classList.remove('hidden');
       elements.priorityCard.style.borderColor = meta.overlayBorder;
       elements.priorityCard.style.backgroundColor = meta.priorityBg;
       elements.priorityIndex.textContent = `Зона ${issueIndex + 1}`;
@@ -625,218 +690,106 @@
       renderOverlay();
     }
 
-    function detectRegions(data, width, height) {
-      const isPortrait = height > width;
-      const columns = isPortrait ? 5 : 8;
-      const rows = 7;
-      const cellWidth = width / columns;
-      const cellHeight = height / rows;
-      const candidates = [];
-
-      for (let row = 0; row < rows; row += 1) {
-        for (let column = 0; column < columns; column += 1) {
-          const startX = Math.floor(column * cellWidth);
-          const endX = Math.min(width, Math.ceil((column + 1) * cellWidth));
-          const startY = Math.floor(row * cellHeight);
-          const endY = Math.min(height, Math.ceil((row + 1) * cellHeight));
-          let lumaSum = 0;
-          let lumaSquaredSum = 0;
-          let edgeSum = 0;
-          let saturationSum = 0;
-          let pixels = 0;
-
-          for (let y = startY; y < endY; y += 2) {
-            for (let x = startX; x < endX; x += 2) {
-              const index = (y * width + x) * 4;
-              const r = data[index] / 255;
-              const g = data[index + 1] / 255;
-              const b = data[index + 2] / 255;
-              const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-              const nextX = Math.min(width - 1, x + 2);
-              const nextY = Math.min(height - 1, y + 2);
-              const rightIndex = (y * width + nextX) * 4;
-              const downIndex = (nextY * width + x) * 4;
-              const rightLuma = 0.2126 * data[rightIndex] / 255 + 0.7152 * data[rightIndex + 1] / 255 + 0.0722 * data[rightIndex + 2] / 255;
-              const downLuma = 0.2126 * data[downIndex] / 255 + 0.7152 * data[downIndex + 1] / 255 + 0.0722 * data[downIndex + 2] / 255;
-
-              lumaSum += luma;
-              lumaSquaredSum += luma * luma;
-              edgeSum += Math.abs(luma - rightLuma) + Math.abs(luma - downLuma);
-              saturationSum += Math.max(r, g, b) - Math.min(r, g, b);
-              pixels += 1;
-            }
-          }
-
-          const mean = lumaSum / pixels;
-          const variance = Math.max(0, lumaSquaredSum / pixels - mean * mean);
-          const localContrast = Math.sqrt(variance);
-          const edgeDensity = edgeSum / pixels;
-          const saturation = saturationSum / pixels;
-          const score = localContrast * 1.8 + edgeDensity + saturation * 0.35;
-          candidates.push({
-            centerX: (column + 0.5) / columns,
-            centerY: (row + 0.5) / rows,
-            mean,
-            localContrast,
-            edgeDensity,
-            saturation,
-            score,
-          });
-        }
-      }
-
-      candidates.sort((a, b) => b.score - a.score);
-      const scores = candidates.map((candidate) => candidate.score).sort((a, b) => a - b);
-      const medianScore = scores[Math.floor(scores.length / 2)] || 0;
-      const averageSaturation = candidates.reduce((sum, candidate) => sum + candidate.saturation, 0) / candidates.length;
-      const leftScore = candidates.filter((candidate) => candidate.centerX < 0.5).reduce((sum, candidate) => sum + candidate.score, 0);
-      const rightScore = candidates.filter((candidate) => candidate.centerX >= 0.5).reduce((sum, candidate) => sum + candidate.score, 0);
-      const selected = [];
-      for (const candidate of candidates) {
-        const farEnough = selected.every((region) => Math.hypot(candidate.centerX - region.centerX, candidate.centerY - region.centerY) > 0.22);
-        if (farEnough || selected.length === 0) selected.push(candidate);
-        if (selected.length === 3) break;
-      }
-
-      for (const candidate of candidates) {
-        if (selected.length === 3) break;
-        if (!selected.includes(candidate)) selected.push(candidate);
-      }
-
-      const regionWidth = isPortrait ? 0.52 : 0.25;
-      const regionHeight = isPortrait ? 0.14 : 0.18;
-      return {
-        regions: selected.map((region) => ({
-          ...region,
-          x: Math.max(0.02, Math.min(0.98 - regionWidth, region.centerX - regionWidth / 2)),
-          y: Math.max(0.02, Math.min(0.98 - regionHeight, region.centerY - regionHeight / 2)),
-          width: regionWidth,
-          height: regionHeight,
-        })),
-        medianScore,
-        averageSaturation,
-        leftScore,
-        rightScore,
-      };
-    }
-
-    function buildSignalsFromImage({ analysis }) {
-      const { regions, medianScore, averageSaturation, leftScore, rightScore } = analysis;
-      const signals = [];
-      const usedRegions = new Set();
-      const detailRegion = regions[0];
-
-      if (detailRegion && detailRegion.score > medianScore * 1.2 && detailRegion.edgeDensity > 0.018) {
-        signals.push({
-          id: 'detail-concentration',
-          title: 'Высокая концентрация деталей',
-          description: 'В этой области алгоритм видит больше контрастных переходов и мелких элементов, чем в среднем по экрану.',
-          recommendation: 'Проверьте вручную, легко ли здесь выделить главный объект и не конкурируют ли соседние детали за внимание.',
-          severity: 'review',
-          ...detailRegion,
-        });
-        usedRegions.add(detailRegion);
-      }
-
-      const colorRegion = regions.find((region) => region.saturation > Math.max(0.12, averageSaturation * 1.35));
-      if (colorRegion && !usedRegions.has(colorRegion)) {
-        signals.push({
-          id: 'color-accent',
-          title: 'Сильный цветовой акцент',
-          description: 'Эта зона заметно насыщеннее остальных областей скриншота.',
-          recommendation: 'Проверьте, соответствует ли самый яркий цветовой акцент реальному приоритету элемента.',
-          severity: 'review',
-          ...colorRegion,
-        });
-        usedRegions.add(colorRegion);
-      }
-
-      const totalSideScore = leftScore + rightScore;
-      const balanceDifference = totalSideScore ? Math.abs(leftScore - rightScore) / totalSideScore : 0;
-      const heavierSide = leftScore >= rightScore ? 'левой' : 'правой';
-      const balanceRegion = regions.find((region) => leftScore >= rightScore ? region.centerX < 0.5 : region.centerX >= 0.5);
-      if (balanceDifference > 0.18 && balanceRegion && !usedRegions.has(balanceRegion)) {
-        signals.push({
-          id: 'visual-balance',
-          title: 'Смещён визуальный вес',
-          description: `В ${heavierSide} части экрана сосредоточено заметно больше визуальной активности.`,
-          recommendation: 'Проверьте, соответствует ли такое распределение важности контента и ожидаемому маршруту взгляда.',
-          severity: 'review',
-          ...balanceRegion,
-        });
-        usedRegions.add(balanceRegion);
-      }
-
-      if (!signals.length && detailRegion) {
-        signals.push({
-          id: 'manual-review',
-          title: 'Зона с наибольшей визуальной активностью',
-          description: 'Здесь сосредоточено больше всего визуальных изменений на скриншоте, но это не означает наличие ошибки.',
-          recommendation: 'Проверьте эту область вручную. Авто-разбор не обнаружил основания для конкретного UX-диагноза.',
-          severity: 'review',
-          ...detailRegion,
-        });
-      }
-
-      return signals.slice(0, 3);
-    }
 
     function compactFileName(name) {
       return name.length > 38 ? `${name.slice(0, 35)}...` : name;
     }
 
     function finishAnalysisError() {
+      hasUploadedResult = false;
       setAnalysisState(false);
       setStatus('error');
       elements.screenTitle.textContent = 'Не удалось прочитать изображение';
       elements.screenContext.textContent = 'Выберите другой файл в формате PNG, JPG или WebP.';
+      elements.inspectorEmpty.classList.remove('hidden');
+      elements.resultStage.classList.add('hidden');
+      render();
     }
 
-    function analyzeFile(file) {
-      const img = new Image();
-      const reader = new FileReader();
-      const startedAt = Date.now();
 
-      reader.onload = () => {
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d', { willReadFrequently: true });
-          const sampleWidth = img.height > img.width ? 120 : 160;
-          const sampleHeight = Math.max(80, Math.min(240, Math.round((img.height / img.width) * sampleWidth)));
-          canvas.width = sampleWidth;
-          canvas.height = sampleHeight;
-          context.drawImage(img, 0, 0, sampleWidth, sampleHeight);
+    function analysisEndpoint() {
+      const configured = String(document.querySelector('meta[name="ui-inspector-api"]')?.content || '').trim();
+      if (configured) return configured;
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        if (!window.location.hostname.endsWith('github.io')) return '/api/analyze';
+      }
+      throw new Error('Backend анализа ещё не подключён к публичному адресу сайта.');
+    }
 
-          const { data } = context.getImageData(0, 0, sampleWidth, sampleHeight);
-          const analysis = detectRegions(data, sampleWidth, sampleHeight);
-          const nextIssues = buildSignalsFromImage({ analysis });
-          const remainingDelay = Math.max(0, 700 - (Date.now() - startedAt));
-
-          window.setTimeout(() => {
-            currentIssues = nextIssues;
-            selectedIssueId = currentIssues[0].id;
-            hasUploadedResult = true;
-            elements.screenTitle.textContent = compactFileName(file.name);
-            elements.screenContext.textContent = `${img.width} × ${img.height} · ${pluralSignals(currentIssues.length)} · авто-разбор завершён`;
-            setAnalysisState(false);
-            setStatus('ready');
-            render();
-          }, remainingDelay);
+    function prepareImage(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error('Не удалось прочитать изображение.'));
+        reader.onload = () => {
+          const image = new Image();
+          image.onerror = () => reject(new Error('Не удалось открыть изображение.'));
+          image.onload = () => {
+            const maxSide = 1800;
+            const scale = Math.min(1, maxSide / Math.max(image.naturalWidth, image.naturalHeight));
+            const width = Math.max(1, Math.round(image.naturalWidth * scale));
+            const height = Math.max(1, Math.round(image.naturalHeight * scale));
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = width;
+            canvas.height = height;
+            context.fillStyle = '#ffffff';
+            context.fillRect(0, 0, width, height);
+            context.drawImage(image, 0, 0, width, height);
+            resolve({
+              image: canvas.toDataURL('image/jpeg', 0.9),
+              width: image.naturalWidth,
+              height: image.naturalHeight,
+            });
+          };
+          image.src = reader.result;
         };
+        reader.readAsDataURL(file);
+      });
+    }
 
-        img.onerror = finishAnalysisError;
+    async function requestVisionAnalysis(file) {
+      const prepared = await prepareImage(file);
+      const response = await fetch(analysisEndpoint(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: prepared.image, fileName: file.name }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || 'Сервис анализа временно недоступен.');
+      if (!Array.isArray(payload.issues)) throw new Error('Сервис вернул результат в неверном формате.');
+      return { ...prepared, ...payload };
+    }
 
-        img.src = reader.result;
-      };
-
-      reader.onerror = finishAnalysisError;
-
-      reader.readAsDataURL(file);
+    async function analyzeWithVision(file) {
+      try {
+        const result = await requestVisionAnalysis(file);
+        currentIssues = result.issues;
+        currentSummary = result.summary || '';
+        analysisError = '';
+        selectedIssueId = currentIssues[0]?.id || null;
+        hasUploadedResult = true;
+        elements.screenTitle.textContent = compactFileName(file.name);
+        elements.screenContext.textContent = `${result.width} × ${result.height} · ${pluralSignals(currentIssues.length)} · AI-анализ завершён`;
+        setAnalysisState(false);
+        setStatus('ready');
+        render();
+      } catch (error) {
+        currentIssues = [];
+        currentSummary = '';
+        analysisError = error instanceof Error ? error.message : 'Не удалось завершить анализ.';
+        selectedIssueId = null;
+        hasUploadedResult = true;
+        elements.screenTitle.textContent = compactFileName(file.name);
+        elements.screenContext.textContent = 'Скриншот загружен · AI-анализ не завершён';
+        setAnalysisState(false);
+        setStatus('error');
+        render();
+      }
     }
 
     function loadFile(file) {
       if (!file) return;
-      if (!file.type.startsWith('image/')) {
+      if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
         finishAnalysisError();
         return;
       }
@@ -847,10 +800,18 @@
 
       objectUrl = URL.createObjectURL(file);
       elements.beforeImage.src = objectUrl;
+      currentIssues = [];
+      selectedIssueId = null;
+      currentSummary = '';
+      analysisError = '';
+      hasUploadedResult = true;
+      elements.inspectorEmpty.classList.add('hidden');
+      elements.resultStage.classList.remove('hidden');
       elements.screenTitle.textContent = 'Подготавливаем скриншот';
       elements.screenContext.textContent = compactFileName(file.name);
       setAnalysisState(true);
-      analyzeFile(file);
+      render();
+      analyzeWithVision(file);
       document.getElementById('inspector').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
@@ -892,8 +853,7 @@
     window.addEventListener('resize', renderOverlay);
     elements.beforeImage.addEventListener('load', () => requestAnimationFrame(renderOverlay));
 
-    elements.beforeImage.src = defaultImage;
-    setStatus('demo');
+    setStatus('empty');
     render();
   </script>
 </body>
