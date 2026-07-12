@@ -89,8 +89,8 @@
     <section class="px-4 pb-10 pt-10 sm:px-6 lg:px-8 lg:pb-14 lg:pt-14">
       <div class="mx-auto grid max-w-7xl items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
         <div class="max-w-2xl">
-          <div class="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-muted shadow-tight">
-            <span class="h-2 w-2 rounded-full bg-green"></span>
+          <div class="mb-5 inline-flex items-center gap-2.5 rounded-full bg-[rgba(56,167,255,0.2)] px-4 py-2.5 text-sm font-medium text-[#38a7ff]">
+            <span class="h-2.5 w-2.5 rounded-full bg-[#38a7ff]"></span>
             AI-анализ интерфейсов
           </div>
 
@@ -207,31 +207,15 @@
               id="dropzone"
               class="relative rounded-xl border border-dashed border-black/20 bg-panel p-2 transition sm:p-3"
             >
-              <div class="grid gap-3 lg:grid-cols-2">
-                <div class="rounded-lg border border-black/10 bg-white p-2">
-                  <div class="mb-2 flex items-center justify-between gap-2">
-                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">До</p>
-                    <span class="rounded bg-amber/10 px-2 py-1 text-xs font-semibold text-amber">Зоны риска</span>
-                  </div>
-                  <div id="before-stage" class="relative flex min-h-[240px] items-center justify-center overflow-hidden rounded-md bg-white sm:min-h-[360px]">
-                    <img id="before-image" alt="Скриншот до исправлений" class="max-h-[520px] w-auto max-w-full rounded-md object-contain" />
-                    <div id="overlay-layer" class="pointer-events-none absolute inset-0">
-                      <div id="overlays" class="absolute inset-0"></div>
-                    </div>
-                  </div>
+              <div class="rounded-lg border border-black/10 bg-white p-2">
+                <div class="mb-2 flex items-center justify-between gap-2">
+                  <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Загруженный скриншот</p>
+                  <span class="rounded bg-amber/10 px-2 py-1 text-xs font-semibold text-amber">Зоны риска</span>
                 </div>
-
-                <div class="rounded-lg border border-black/10 bg-white p-2">
-                  <div class="mb-2 flex items-center justify-between gap-2">
-                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">После</p>
-                    <span class="rounded bg-green/10 px-2 py-1 text-xs font-semibold text-green">Рекомендованный вид</span>
-                  </div>
-                  <div class="relative flex min-h-[240px] items-center justify-center overflow-hidden rounded-md bg-white sm:min-h-[360px]">
-                    <img id="after-image" alt="Скриншот после рекомендаций" class="max-h-[520px] w-auto max-w-full rounded-md object-contain transition" />
-                    <div class="pointer-events-none absolute inset-x-6 bottom-5 hidden rounded-lg border border-green/25 bg-white/92 p-3 shadow-tight sm:block">
-                      <p class="text-xs font-semibold uppercase tracking-[0.14em] text-green">AI улучшение</p>
-                      <p id="after-note" class="mt-1 text-sm font-semibold text-ink">Более заметный CTA, ровнее отступы, выше контраст.</p>
-                    </div>
+                <div id="before-stage" class="relative flex min-h-[280px] items-center justify-center overflow-hidden rounded-md bg-white sm:min-h-[520px]">
+                  <img id="before-image" alt="Скриншот с подсветкой проблем" class="max-h-[680px] w-auto max-w-full rounded-md object-contain" />
+                  <div id="overlay-layer" class="pointer-events-none absolute inset-0">
+                    <div id="overlays" class="absolute inset-0"></div>
                   </div>
                 </div>
               </div>
@@ -383,7 +367,6 @@
       dropHint: document.getElementById('drop-hint'),
       empty: document.getElementById('empty-state'),
       beforeImage: document.getElementById('before-image'),
-      afterImage: document.getElementById('after-image'),
       beforeStage: document.getElementById('before-stage'),
       overlays: document.getElementById('overlays'),
       issues: document.getElementById('issues'),
@@ -392,7 +375,6 @@
       scorePill: document.getElementById('score-pill'),
       screenTitle: document.getElementById('screen-title'),
       priorityFix: document.getElementById('priority-fix'),
-      afterNote: document.getElementById('after-note'),
     };
 
     let currentIssues = [...defaultIssues];
@@ -474,22 +456,23 @@
 
     function renderOverlay() {
       elements.overlays.innerHTML = '';
-      const issue = selectedIssue();
-      if (!issue) return;
-
       const bounds = imageBounds();
       if (!bounds.width || !bounds.height) return;
 
-      const meta = severityMeta(issue.severity);
-      const overlay = document.createElement('div');
-      overlay.className = 'absolute rounded-md border-2 shadow-tight transition-all duration-200';
-      overlay.style.left = `${bounds.left + issue.x * bounds.width}px`;
-      overlay.style.top = `${bounds.top + issue.y * bounds.height}px`;
-      overlay.style.width = `${issue.width * bounds.width}px`;
-      overlay.style.height = `${issue.height * bounds.height}px`;
-      overlay.style.backgroundColor = meta.overlayBg;
-      overlay.style.borderColor = meta.overlayBorder;
-      elements.overlays.appendChild(overlay);
+      currentIssues.forEach((issue, index) => {
+        const meta = severityMeta(issue.severity);
+        const active = issue.id === selectedIssueId;
+        const overlay = document.createElement('div');
+        overlay.className = `absolute rounded-md border-2 transition-all duration-200 ${active ? 'z-10' : 'opacity-60'}`;
+        overlay.style.left = `${bounds.left + issue.x * bounds.width}px`;
+        overlay.style.top = `${bounds.top + issue.y * bounds.height}px`;
+        overlay.style.width = `${issue.width * bounds.width}px`;
+        overlay.style.height = `${issue.height * bounds.height}px`;
+        overlay.style.backgroundColor = meta.overlayBg;
+        overlay.style.borderColor = meta.overlayBorder;
+        overlay.innerHTML = `<span class="absolute -left-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full text-[0.65rem] font-bold text-white" style="background:${meta.overlayBorder}">${index + 1}</span>`;
+        elements.overlays.appendChild(overlay);
+      });
     }
 
     function render() {
@@ -501,64 +484,121 @@
       elements.findingsPill.textContent = label;
       elements.scorePill.textContent = `Оценка ${averageScore}%`;
       elements.priorityFix.textContent = issue.recommendation;
-      elements.afterNote.textContent = issue.recommendation;
-      elements.afterImage.style.filter = 'contrast(1.08) saturate(1.08) brightness(1.02)';
 
       renderIssues();
       renderOverlay();
     }
 
-    function buildIssuesFromImage({ width, height, brightness, contrast }) {
+    function detectRegions(data, width, height) {
+      const isPortrait = height > width;
+      const columns = isPortrait ? 5 : 8;
+      const rows = 7;
+      const cellWidth = width / columns;
+      const cellHeight = height / rows;
+      const candidates = [];
+
+      for (let row = 0; row < rows; row += 1) {
+        for (let column = 0; column < columns; column += 1) {
+          const startX = Math.floor(column * cellWidth);
+          const endX = Math.min(width, Math.ceil((column + 1) * cellWidth));
+          const startY = Math.floor(row * cellHeight);
+          const endY = Math.min(height, Math.ceil((row + 1) * cellHeight));
+          let lumaSum = 0;
+          let lumaSquaredSum = 0;
+          let edgeSum = 0;
+          let saturationSum = 0;
+          let pixels = 0;
+
+          for (let y = startY; y < endY; y += 2) {
+            for (let x = startX; x < endX; x += 2) {
+              const index = (y * width + x) * 4;
+              const r = data[index] / 255;
+              const g = data[index + 1] / 255;
+              const b = data[index + 2] / 255;
+              const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+              const nextX = Math.min(width - 1, x + 2);
+              const nextY = Math.min(height - 1, y + 2);
+              const rightIndex = (y * width + nextX) * 4;
+              const downIndex = (nextY * width + x) * 4;
+              const rightLuma = 0.2126 * data[rightIndex] / 255 + 0.7152 * data[rightIndex + 1] / 255 + 0.0722 * data[rightIndex + 2] / 255;
+              const downLuma = 0.2126 * data[downIndex] / 255 + 0.7152 * data[downIndex + 1] / 255 + 0.0722 * data[downIndex + 2] / 255;
+
+              lumaSum += luma;
+              lumaSquaredSum += luma * luma;
+              edgeSum += Math.abs(luma - rightLuma) + Math.abs(luma - downLuma);
+              saturationSum += Math.max(r, g, b) - Math.min(r, g, b);
+              pixels += 1;
+            }
+          }
+
+          const mean = lumaSum / pixels;
+          const variance = Math.max(0, lumaSquaredSum / pixels - mean * mean);
+          const score = Math.sqrt(variance) * 1.8 + edgeSum / pixels + saturationSum / pixels * 0.35;
+          candidates.push({
+            centerX: (column + 0.5) / columns,
+            centerY: (row + 0.5) / rows,
+            score,
+          });
+        }
+      }
+
+      candidates.sort((a, b) => b.score - a.score);
+      const selected = [];
+      for (const candidate of candidates) {
+        const farEnough = selected.every((region) => Math.hypot(candidate.centerX - region.centerX, candidate.centerY - region.centerY) > 0.22);
+        if (farEnough || selected.length === 0) selected.push(candidate);
+        if (selected.length === 3) break;
+      }
+
+      for (const candidate of candidates) {
+        if (selected.length === 3) break;
+        if (!selected.includes(candidate)) selected.push(candidate);
+      }
+
+      const regionWidth = isPortrait ? 0.52 : 0.25;
+      const regionHeight = isPortrait ? 0.14 : 0.18;
+      return selected.map((region) => ({
+        x: Math.max(0.02, Math.min(0.98 - regionWidth, region.centerX - regionWidth / 2)),
+        y: Math.max(0.02, Math.min(0.98 - regionHeight, region.centerY - regionHeight / 2)),
+        width: regionWidth,
+        height: regionHeight,
+      }));
+    }
+
+    function buildIssuesFromImage({ width, height, brightness, contrast, regions }) {
       const isPortrait = height > width;
       const baseScore = Math.max(74, Math.min(94, Math.round(92 - Math.abs(brightness - 0.78) * 18 - Math.max(0, 0.34 - contrast) * 26)));
       const issues = [
         {
+          id: 'dynamic-action',
+          title: 'Главное действие требует акцента',
+          description: 'В этой визуально активной зоне элементы конкурируют за внимание.',
+          recommendation: 'Сделайте главное действие контрастнее и сократите количество соседних акцентов.',
+          severity: 'critical',
+          score: Math.max(baseScore - 9, 74),
+          ...regions[0],
+        },
+        {
           id: 'dynamic-layout',
-          title: isPortrait ? 'Слишком плотная вертикальная сетка' : 'Слабая композиция первого экрана',
-          description: isPortrait ? 'На высоком скриншоте ключевые блоки стоят слишком близко друг к другу.' : 'Широкий экран не ведет взгляд к главному действию.',
-          recommendation: isPortrait ? 'Разделите основные секции, увеличьте вертикальные интервалы и закрепите главный CTA выше.' : 'Соберите заголовок, пояснение и CTA в одну сильную зону внимания.',
+          title: isPortrait ? 'Слишком плотная вертикальная сетка' : 'Нарушена визуальная иерархия',
+          description: 'Плотность элементов в этой области усложняет быстрый просмотр экрана.',
+          recommendation: isPortrait ? 'Увеличьте вертикальные интервалы между ключевыми блоками.' : 'Разделите элементы по уровням важности и добавьте больше воздуха вокруг главного блока.',
           severity: 'warning',
           score: baseScore,
-          x: isPortrait ? 0.16 : 0.46,
-          y: isPortrait ? 0.22 : 0.18,
-          width: isPortrait ? 0.68 : 0.42,
-          height: isPortrait ? 0.34 : 0.22,
+          ...regions[1],
+        },
+        {
+          id: 'dynamic-contrast',
+          title: contrast < 0.28 || brightness > 0.82 ? 'Недостаточный контраст текста' : 'Контраст зоны требует проверки',
+          description: 'В этой области соседние элементы недостаточно четко отделены друг от друга.',
+          recommendation: 'Усильте контраст важных элементов и сократите количество близких по тону оттенков.',
+          severity: brightness > 0.88 ? 'critical' : 'warning',
+          score: Math.max(baseScore - 7, 76),
+          ...regions[2],
         },
       ];
 
-      if (brightness > 0.82 || contrast < 0.28) {
-        issues.push({
-          id: 'dynamic-contrast',
-          title: 'Недостаточный контраст текста',
-          description: 'Часть подписей может выглядеть второстепенной даже там, где нужна уверенная читаемость.',
-          recommendation: 'Усилите тон основного текста, уменьшите количество светло-серых подписей и проверьте контраст важных состояний.',
-          severity: brightness > 0.88 ? 'critical' : 'warning',
-          score: Math.max(baseScore - 7, 76),
-          x: 0.08,
-          y: 0.12,
-          width: isPortrait ? 0.70 : 0.30,
-          height: 0.16,
-        });
-      }
-
-      issues.push({
-        id: 'dynamic-action',
-        title: 'Главное действие требует акцента',
-        description: 'CTA не выглядит самым очевидным следующим шагом.',
-        recommendation: 'Сделайте кнопку контрастнее, сократите соседние элементы и проверьте, что действие видно без скролла.',
-        severity: 'critical',
-        score: Math.max(baseScore - 9, 74),
-        x: isPortrait ? 0.20 : 0.60,
-        y: isPortrait ? 0.72 : 0.68,
-        width: isPortrait ? 0.58 : 0.26,
-        height: 0.10,
-      });
-
-      if (issues.length < 3) {
-        issues.push(defaultIssues[1]);
-      }
-
-      return issues.slice(0, 4);
+      return issues;
     }
 
     function analyzeFile(file) {
@@ -569,8 +609,8 @@
         img.onload = () => {
           const canvas = document.createElement('canvas');
           const context = canvas.getContext('2d', { willReadFrequently: true });
-          const sampleWidth = 80;
-          const sampleHeight = Math.max(60, Math.round((img.height / img.width) * sampleWidth));
+          const sampleWidth = img.height > img.width ? 120 : 160;
+          const sampleHeight = Math.max(80, Math.min(240, Math.round((img.height / img.width) * sampleWidth)));
           canvas.width = sampleWidth;
           canvas.height = sampleHeight;
           context.drawImage(img, 0, 0, sampleWidth, sampleHeight);
@@ -595,6 +635,7 @@
             height: img.height,
             brightness: sum / (data.length / 4),
             contrast: max - min,
+            regions: detectRegions(data, sampleWidth, sampleHeight),
           });
           selectedIssueId = currentIssues[0].id;
           elements.screenTitle.textContent = img.width >= img.height ? 'Загруженный широкий экран' : 'Загруженный мобильный экран';
@@ -616,7 +657,6 @@
 
       objectUrl = URL.createObjectURL(file);
       elements.beforeImage.src = objectUrl;
-      elements.afterImage.src = objectUrl;
       elements.empty.classList.add('hidden');
       analyzeFile(file);
       document.getElementById('inspector').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -657,10 +697,8 @@
 
     window.addEventListener('resize', renderOverlay);
     elements.beforeImage.addEventListener('load', () => requestAnimationFrame(renderOverlay));
-    elements.afterImage.addEventListener('load', () => requestAnimationFrame(renderOverlay));
 
     elements.beforeImage.src = defaultImage;
-    elements.afterImage.src = defaultImage;
     render();
   </script>
 </body>
