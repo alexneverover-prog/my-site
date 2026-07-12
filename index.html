@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>UI Inspector</title>
+  <title>AI UI Inspector</title>
   <meta
     name="description"
-    content="UI Inspector helps review interfaces in the browser, detect layout issues, and improve visual consistency."
+    content="AI UI Inspector находит UI/UX-проблемы на скриншотах интерфейса, подсвечивает зоны риска и предлагает точные исправления."
   />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -14,1076 +14,591 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'sans-serif'],
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', 'Arial', 'sans-serif'],
           },
           colors: {
-            ink: '#111111',
-            mist: '#f5f5f7',
-            line: '#d2d2d7',
-            appleBlue: '#0071e3',
-            steel: '#6e6e73',
-            warning: '#c77800',
-            critical: '#d33b2f',
+            ink: '#08090b',
+            graphite: '#191b20',
+            muted: '#626872',
+            line: '#d9dde5',
+            panel: '#f5f6f8',
+            blue: '#2563eb',
+            amber: '#b45309',
+            red: '#dc2626',
+            green: '#15803d',
           },
           boxShadow: {
-            soft: '0 30px 80px rgba(17, 17, 17, 0.08)',
-            card: '0 18px 40px rgba(17, 17, 17, 0.08)',
-          },
-          backgroundImage: {
-            'hero-glow': 'radial-gradient(circle at top, rgba(0, 113, 227, 0.14), rgba(255,255,255,0) 52%)',
+            precise: '0 22px 70px rgba(8, 9, 11, 0.12)',
+            tight: '0 12px 32px rgba(8, 9, 11, 0.08)',
           },
         },
       },
     };
   </script>
-</head>
-<body class="bg-white font-sans text-ink antialiased">
-  <div class="absolute inset-x-0 top-0 -z-10 h-[38rem] bg-hero-glow"></div>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
 
-  <header class="sticky top-0 z-20 border-b border-black/5 bg-white/80 backdrop-blur-xl">
-    <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 lg:px-8">
+    body {
+      overflow-x: hidden;
+      background:
+        linear-gradient(180deg, rgba(245, 247, 251, 0.95) 0%, #ffffff 32rem),
+        #ffffff;
+    }
+
+    * {
+      min-width: 0;
+    }
+
+    .scan-line {
+      background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.85), transparent);
+      animation: scan 3.2s ease-in-out infinite;
+    }
+
+    @keyframes scan {
+      0%, 100% { transform: translateY(0); opacity: 0.15; }
+      50% { transform: translateY(210px); opacity: 0.8; }
+    }
+  </style>
+</head>
+<body class="font-sans text-ink antialiased">
+  <header class="sticky top-0 z-30 border-b border-black/10 bg-white/88 backdrop-blur-xl">
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
       <a href="#top" class="flex items-center gap-3">
-        <img src="./Sources/UIInspectorApp/Resources/AppIcon.png" alt="UI Inspector icon" class="h-10 w-10 rounded-xl shadow-card" />
+        <img src="./Sources/UIInspectorApp/Resources/AppIcon.png" alt="AI UI Inspector" class="h-9 w-9 rounded-lg shadow-tight" />
         <div>
-          <p class="text-sm font-semibold tracking-tight">UI Inspector</p>
-          <p class="text-xs text-steel" data-i18n="header_subtitle">Browser workspace</p>
+          <p class="text-sm font-semibold tracking-tight">AI UI Inspector</p>
+          <p class="text-xs text-muted">Проверка интерфейсов по скриншоту</p>
         </div>
       </a>
 
-      <nav class="hidden items-center gap-8 text-sm text-steel md:flex">
-        <a href="#features" class="transition hover:text-ink" data-i18n="nav_features">Features</a>
-        <a href="#screenshots" class="transition hover:text-ink" data-i18n="nav_screenshots">Screenshots</a>
-        <a href="#demo" class="transition hover:text-ink" data-i18n="nav_demo">Demo</a>
-        <a href="#cta" class="transition hover:text-ink" data-i18n="nav_open">Open</a>
+      <nav class="hidden items-center gap-6 text-sm font-medium text-muted md:flex">
+        <a href="#inspector" class="transition hover:text-ink">Инспектор</a>
+        <a href="#capabilities" class="transition hover:text-ink">Возможности</a>
+        <a href="#workflow" class="transition hover:text-ink">Как работает</a>
       </nav>
+
+      <a href="#inspector" class="inline-flex items-center justify-center rounded-lg bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-graphite">
+        Проверить экран
+      </a>
     </div>
   </header>
 
   <main id="top">
-    <section class="px-6 pb-16 pt-14 lg:px-8 lg:pb-24 lg:pt-24">
-      <div class="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-[1.02fr_0.98fr]">
+    <section class="px-4 pb-10 pt-10 sm:px-6 lg:px-8 lg:pb-14 lg:pt-14">
+      <div class="mx-auto grid max-w-7xl items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
         <div class="max-w-2xl">
-          <p class="mb-6 text-sm font-medium tracking-[0.2em] text-steel uppercase" data-i18n="hero_eyebrow">Precision UI Review</p>
-          <h1 class="max-w-xl text-5xl font-semibold tracking-tight text-ink sm:text-6xl lg:text-7xl" data-i18n="hero_title">
-            Inspect every pixel before users do.
+          <div class="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-muted shadow-tight">
+            <span class="h-2 w-2 rounded-full bg-green"></span>
+            AI-анализ интерфейсов
+          </div>
+
+          <h1 class="text-4xl font-semibold leading-[1.02] tracking-tight sm:text-5xl lg:text-6xl">
+            Найдите слабые места UI за один скриншот.
           </h1>
-          <p class="mt-6 max-w-xl text-lg leading-8 text-steel" data-i18n="hero_body">
-            UI Inspector analyzes screenshots right in the browser and helps designers and developers catch spacing issues, hierarchy problems and visual inconsistencies in one focused workspace.
+          <p class="mt-5 max-w-xl text-base leading-7 text-muted sm:text-lg">
+            Загрузите экран продукта. AI UI Inspector подсветит проблемные зоны, объяснит риск и покажет, как интерфейс станет чище после правок.
           </p>
 
-          <div class="mt-10 flex flex-col gap-4 sm:flex-row">
-            <a
-              href="#demo"
-              class="inline-flex items-center justify-center rounded-full bg-ink px-7 py-3 text-sm font-medium text-white transition hover:bg-black"
-              data-i18n="hero_primary"
-            >
-              Open UI Inspector
-            </a>
-            <a
-              href="#features"
-              class="inline-flex items-center justify-center rounded-full border border-line px-7 py-3 text-sm font-medium text-ink transition hover:border-ink"
-              data-i18n="hero_secondary"
-            >
-              Explore features
-            </a>
-          </div>
-
-          <div class="mt-12 grid gap-5 sm:grid-cols-3">
-            <div>
-              <p class="text-3xl font-semibold tracking-tight" data-i18n="stat_one_title">1 click</p>
-              <p class="mt-2 text-sm text-steel" data-i18n="stat_one_body">to load and inspect any screenshot</p>
-            </div>
-            <div>
-              <p class="text-3xl font-semibold tracking-tight" data-i18n="stat_two_title">3 views</p>
-              <p class="mt-2 text-sm text-steel" data-i18n="stat_two_body">overview, issue list and focused detail</p>
-            </div>
-            <div>
-              <p class="text-3xl font-semibold tracking-tight" data-i18n="stat_three_title">Browser ready</p>
-              <p class="mt-2 text-sm text-steel" data-i18n="stat_three_body">a SaaS workflow with the feel of a polished product tool</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="relative">
-          <div class="absolute -left-8 top-8 h-40 w-40 rounded-full bg-appleBlue/10 blur-3xl"></div>
-          <div class="relative overflow-hidden rounded-[2rem] border border-black/10 bg-[#f5f5f7] p-3 shadow-soft">
-            <div class="rounded-[1.6rem] border border-black/10 bg-white p-5">
-              <div class="grid gap-5 md:grid-cols-[220px_1fr]">
-                <aside class="rounded-[1.5rem] bg-[#fbfbfd] p-5">
-                  <p class="text-xs font-semibold uppercase tracking-[0.22em] text-steel" data-i18n="mock_issues">Detected issues</p>
-                  <div class="mt-5 space-y-3">
-                    <div class="rounded-2xl border border-black/5 bg-white p-4 shadow-card">
-                      <p class="text-sm font-medium" data-i18n="mock_issue_1_title">Button misalignment</p>
-                      <p class="mt-1 text-xs text-steel" data-i18n="mock_issue_1_body">Primary CTA sits 6px below the grid baseline.</p>
-                    </div>
-                    <div class="rounded-2xl border border-black/5 bg-white p-4">
-                      <p class="text-sm font-medium" data-i18n="mock_issue_2_title">Spacing inconsistency</p>
-                      <p class="mt-1 text-xs text-steel" data-i18n="mock_issue_2_body">Card padding differs between blocks.</p>
-                    </div>
-                    <div class="rounded-2xl border border-black/5 bg-white p-4">
-                      <p class="text-sm font-medium" data-i18n="mock_issue_3_title">Low emphasis text</p>
-                      <p class="mt-1 text-xs text-steel" data-i18n="mock_issue_3_body">Secondary label lacks enough contrast.</p>
-                    </div>
-                  </div>
-                </aside>
-
-                <div class="rounded-[1.5rem] bg-[#f5f5f7] p-5">
-                  <div class="rounded-[1.25rem] bg-white p-5 shadow-card">
-                    <div class="flex items-start justify-between gap-4">
-                      <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-steel" data-i18n="mock_screen_label">Current screen</p>
-                        <p class="mt-2 text-xl font-semibold tracking-tight">Checkout flow</p>
-                      </div>
-                      <span class="rounded-full bg-appleBlue/10 px-3 py-1 text-xs font-medium text-appleBlue" data-i18n="mock_findings">12 findings</span>
-                    </div>
-
-                    <div class="mt-6 rounded-[1.25rem] border border-black/5 bg-[#fafafa] p-5">
-                      <div class="grid gap-4 sm:grid-cols-[1fr_0.85fr]">
-                        <div class="rounded-2xl bg-white p-4">
-                          <div class="h-36 rounded-xl bg-gradient-to-br from-[#e8f1ff] via-white to-[#f2f2f2]"></div>
-                          <div class="mt-4 space-y-2">
-                            <div class="h-3 w-2/3 rounded-full bg-[#dcdce1]"></div>
-                            <div class="h-3 w-1/2 rounded-full bg-[#e6e6eb]"></div>
-                          </div>
-                        </div>
-                        <div class="space-y-4">
-                          <div class="rounded-2xl bg-white p-4">
-                            <div class="flex items-center justify-between">
-                              <p class="text-sm font-medium" data-i18n="mock_score">Alignment score</p>
-                              <p class="text-sm text-steel">94%</p>
-                            </div>
-                            <div class="mt-3 h-2 rounded-full bg-[#ececf0]">
-                              <div class="h-2 w-[94%] rounded-full bg-ink"></div>
-                            </div>
-                          </div>
-                          <div class="rounded-2xl bg-white p-4">
-                            <p class="text-sm font-medium" data-i18n="mock_recommendations">Recommendations</p>
-                            <ul class="mt-3 space-y-2 text-sm text-steel">
-                              <li data-i18n="mock_rec_1">Normalize card spacing to 24px.</li>
-                              <li data-i18n="mock_rec_2">Raise contrast on helper text.</li>
-                              <li data-i18n="mock_rec_3">Align CTA with the form edge.</li>
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="features" class="border-t border-black/5 bg-[#fbfbfd] px-6 py-20 lg:px-8">
-      <div class="mx-auto max-w-6xl">
-        <div class="max-w-2xl">
-          <p class="text-sm font-medium tracking-[0.2em] text-steel uppercase" data-i18n="features_eyebrow">Features</p>
-          <h2 class="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl" data-i18n="features_title">A focused toolkit for interface review.</h2>
-          <p class="mt-5 text-lg leading-8 text-steel" data-i18n="features_body">
-            Every screen is organized to move you from overview to action without friction.
-          </p>
-        </div>
-
-        <div class="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          <article class="rounded-[2rem] border border-black/10 bg-white p-7 shadow-card">
-            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-lg text-white">01</div>
-            <h3 class="mt-6 text-xl font-semibold tracking-tight" data-i18n="feature_1_title">Instant screenshot analysis</h3>
-            <p class="mt-3 text-sm leading-7 text-steel" data-i18n="feature_1_body">
-              Drop in a screen and get a fast visual breakdown of spacing and hierarchy.
-            </p>
-          </article>
-
-          <article class="rounded-[2rem] border border-black/10 bg-white p-7 shadow-card">
-            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f5f5f7] text-lg">02</div>
-            <h3 class="mt-6 text-xl font-semibold tracking-tight" data-i18n="feature_2_title">Issue-first workflow</h3>
-            <p class="mt-3 text-sm leading-7 text-steel" data-i18n="feature_2_body">
-              Review findings in a clear list and jump straight to the exact problem area.
-            </p>
-          </article>
-
-          <article class="rounded-[2rem] border border-black/10 bg-white p-7 shadow-card">
-            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f5f5f7] text-lg">03</div>
-            <h3 class="mt-6 text-xl font-semibold tracking-tight" data-i18n="feature_3_title">Element-level detail</h3>
-            <p class="mt-3 text-sm leading-7 text-steel" data-i18n="feature_3_body">
-              Understand what is wrong, why it matters and what to improve next.
-            </p>
-          </article>
-
-          <article class="rounded-[2rem] border border-black/10 bg-white p-7 shadow-card">
-            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f5f5f7] text-lg">04</div>
-            <h3 class="mt-6 text-xl font-semibold tracking-tight" data-i18n="feature_4_title">Product-grade UI</h3>
-            <p class="mt-3 text-sm leading-7 text-steel" data-i18n="feature_4_body">
-              A cleaner SaaS interface that feels intentional, lightweight and precise.
-            </p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section id="screenshots" class="px-6 py-20 lg:px-8">
-      <div class="mx-auto max-w-6xl">
-        <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-          <div class="max-w-2xl">
-            <p class="text-sm font-medium tracking-[0.2em] text-steel uppercase" data-i18n="screens_eyebrow">Screenshots</p>
-            <h2 class="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl" data-i18n="screens_title">Designed to feel familiar on day one.</h2>
-          </div>
-          <p class="max-w-xl text-sm leading-7 text-steel" data-i18n="screens_body">
-            Quiet hierarchy and subtle depth help the interface stay out of the way while you review.
-          </p>
-        </div>
-
-        <div class="mt-14 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <article class="overflow-hidden rounded-[2rem] border border-black/10 bg-white shadow-soft">
-            <div class="grid gap-6 p-6 md:grid-cols-[1fr_260px]">
-              <div class="rounded-[1.75rem] bg-[#f5f5f7] p-5">
-                <div class="grid h-full gap-4">
-                  <div class="rounded-[1.5rem] bg-white p-5 shadow-card">
-                    <div class="flex items-center justify-between">
-                      <div>
-                        <p class="text-xs uppercase tracking-[0.22em] text-steel">Canvas</p>
-                        <p class="mt-2 text-lg font-semibold" data-i18n="screens_canvas_title">Marketing screen</p>
-                      </div>
-                      <div class="rounded-full bg-[#f5f5f7] px-3 py-1 text-xs text-steel">Zoom 100%</div>
-                    </div>
-                    <div class="mt-5 h-64 rounded-[1.25rem] bg-gradient-to-br from-[#eff6ff] via-white to-[#f4f4f6]"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="space-y-4">
-                <div class="rounded-[1.5rem] bg-[#fbfbfd] p-5">
-                  <p class="text-xs uppercase tracking-[0.22em] text-steel" data-i18n="screens_highlights_title">Highlights</p>
-                  <ul class="mt-4 space-y-3 text-sm text-steel">
-                    <li data-i18n="screens_highlight_1">Visual markers for spacing and alignment issues.</li>
-                    <li data-i18n="screens_highlight_2">Quick summaries with clear severity labels.</li>
-                    <li data-i18n="screens_highlight_3">Focused detail panels for faster refinement.</li>
-                  </ul>
-                </div>
-                <div class="rounded-[1.5rem] border border-black/10 bg-white p-5">
-                  <p class="text-sm font-medium" data-i18n="screens_state_title">Review state</p>
-                  <div class="mt-4 space-y-3">
-                    <div class="flex items-center justify-between rounded-2xl bg-[#f5f5f7] px-4 py-3 text-sm">
-                      <span data-i18n="screens_state_alignment">Alignment</span>
-                      <span data-i18n="screens_state_alignment_value">Strong</span>
-                    </div>
-                    <div class="flex items-center justify-between rounded-2xl bg-[#f5f5f7] px-4 py-3 text-sm">
-                      <span data-i18n="screens_state_spacing">Spacing</span>
-                      <span data-i18n="screens_state_spacing_value">Needs work</span>
-                    </div>
-                    <div class="flex items-center justify-between rounded-2xl bg-[#f5f5f7] px-4 py-3 text-sm">
-                      <span data-i18n="screens_state_contrast">Contrast</span>
-                      <span data-i18n="screens_state_contrast_value">Review</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </article>
-
-          <div class="grid gap-6">
-            <article class="rounded-[2rem] border border-black/10 bg-[#fbfbfd] p-6 shadow-card">
-              <p class="text-xs uppercase tracking-[0.22em] text-steel" data-i18n="screens_list_title">Issue list</p>
-              <div class="mt-5 space-y-3">
-                <div class="rounded-[1.5rem] bg-white p-4">
-                  <p class="text-sm font-medium" data-i18n="screens_list_1_title">Header lacks vertical rhythm</p>
-                  <p class="mt-2 text-sm text-steel" data-i18n="screens_list_1_body">Top section uses uneven spacing between title and metadata.</p>
-                </div>
-                <div class="rounded-[1.5rem] bg-white p-4">
-                  <p class="text-sm font-medium" data-i18n="screens_list_2_title">Secondary action too subtle</p>
-                  <p class="mt-2 text-sm text-steel" data-i18n="screens_list_2_body">Low contrast makes the control easy to miss.</p>
-                </div>
-              </div>
-            </article>
-
-            <article class="rounded-[2rem] border border-black/10 bg-white p-6 shadow-card">
-              <p class="text-xs uppercase tracking-[0.22em] text-steel" data-i18n="screens_detail_title">Detail panel</p>
-              <div class="mt-5 rounded-[1.5rem] bg-[#f5f5f7] p-5">
-                <p class="text-lg font-semibold tracking-tight" data-i18n="screens_detail_issue">Spacing inconsistency</p>
-                <p class="mt-3 text-sm leading-7 text-steel" data-i18n="screens_detail_body">
-                  The current block uses 20px padding while adjacent cards use 24px, creating a visible break in rhythm.
-                </p>
-                <div class="mt-5 rounded-full bg-white px-4 py-3 text-sm text-ink shadow-card" data-i18n="screens_detail_fix">
-                  Suggested fix: normalize all cards to 24px.
-                </div>
-              </div>
-            </article>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="demo" class="border-t border-black/5 bg-[#fbfbfd] px-6 py-20 lg:px-8">
-      <div class="mx-auto max-w-6xl">
-        <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-          <div class="max-w-2xl">
-            <p class="text-sm font-medium tracking-[0.2em] text-steel uppercase" data-i18n="demo_eyebrow">Live Demo</p>
-            <h2 class="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl" data-i18n="demo_title">Inspect a screenshot right in the browser.</h2>
-          </div>
-          <p class="max-w-xl text-sm leading-7 text-steel" data-i18n="demo_body">
-            Upload an interface, review recommendations, and click issues to highlight the exact area on the screen.
-          </p>
-        </div>
-
-        <div class="mt-14 rounded-[2.5rem] border border-black/10 bg-white p-6 shadow-soft lg:p-8">
-          <div class="mb-6 flex flex-col gap-4 border-b border-black/5 pb-6 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p class="text-sm font-medium tracking-[0.2em] uppercase text-steel" data-i18n="demo_workspace_eyebrow">Interactive Workspace</p>
-              <h3 class="mt-2 text-2xl font-semibold tracking-tight" data-i18n="demo_workspace_title">Review screenshots with a product-style layout.</h3>
-            </div>
-            <label class="inline-flex cursor-pointer items-center justify-center rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-white transition hover:bg-black">
-              <span data-i18n="demo_upload">Upload screenshot</span>
-              <input id="demo-upload" type="file" accept="image/*" class="hidden" />
+          <div class="mt-7 flex flex-col gap-3 sm:flex-row">
+            <label class="inline-flex cursor-pointer items-center justify-center rounded-lg bg-ink px-5 py-3 text-sm font-semibold text-white shadow-tight transition hover:bg-graphite">
+              Загрузить скриншот
+              <input id="hero-upload" type="file" accept="image/*" class="hidden" />
             </label>
+            <a href="#inspector" class="inline-flex items-center justify-center rounded-lg border border-black/15 bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:border-black/35">
+              Посмотреть демо
+            </a>
           </div>
 
-          <div class="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)_300px]">
-            <div class="space-y-5">
-              <article class="rounded-[1.8rem] border border-black/10 bg-[#fbfbfd] p-5">
-                <p class="text-xs uppercase tracking-[0.22em] text-steel" data-i18n="demo_recommendation_title">Recommendation</p>
-                <p id="demo-recommendation" class="mt-4 text-base leading-8 text-steel"></p>
-              </article>
+          <div class="mt-8 grid grid-cols-3 gap-3 text-sm">
+            <div class="border-l border-black/15 pl-3">
+              <p class="font-semibold text-ink">3-4 зоны</p>
+              <p class="mt-1 text-muted">точечной проверки</p>
+            </div>
+            <div class="border-l border-black/15 pl-3">
+              <p class="font-semibold text-ink">Severity</p>
+              <p class="mt-1 text-muted">приоритет правок</p>
+            </div>
+            <div class="border-l border-black/15 pl-3">
+              <p class="font-semibold text-ink">Before / after</p>
+              <p class="mt-1 text-muted">понятный результат</p>
+            </div>
+          </div>
+        </div>
 
-              <article class="rounded-[1.8rem] border border-black/10 bg-[#fbfbfd] p-5">
-                <p class="text-xs uppercase tracking-[0.22em] text-steel" data-i18n="demo_how_title">How it works</p>
-                <ul class="mt-4 space-y-3 text-sm leading-7 text-steel">
-                  <li data-i18n="demo_how_1">Upload or drag any product screenshot.</li>
-                  <li data-i18n="demo_how_2">Choose an issue on the right.</li>
-                  <li data-i18n="demo_how_3">See the exact highlighted area over the image.</li>
-                </ul>
-              </article>
-
-              <article class="rounded-[1.8rem] bg-white p-5 shadow-card">
-                <div class="flex items-center justify-between">
-                  <p class="text-sm font-medium" data-i18n="demo_score_title">Alignment score</p>
-                  <p id="demo-score" class="text-sm text-steel">94%</p>
+        <div class="rounded-2xl border border-black/10 bg-white p-3 shadow-precise sm:p-4">
+          <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
+            <div class="rounded-xl border border-black/10 bg-panel p-3">
+              <div class="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Входной экран</p>
+                  <p class="mt-1 text-sm font-semibold">Checkout, 1440×960</p>
                 </div>
-                <div class="mt-4 h-2.5 rounded-full bg-[#ececf0]">
-                  <div id="demo-score-bar" class="h-2.5 rounded-full bg-ink transition-all duration-300"></div>
-                </div>
-              </article>
+                <span class="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-blue shadow-tight">AI scan</span>
+              </div>
+              <div class="relative overflow-hidden rounded-lg border border-black/10 bg-white">
+                <img
+                  alt="Пример интерфейса для анализа"
+                  class="block w-full"
+                  src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1040' height='660' viewBox='0 0 1040 660'%3E%3Crect width='1040' height='660' rx='28' fill='%23f6f7fb'/%3E%3Crect x='44' y='42' width='952' height='72' rx='20' fill='white' stroke='%23dfe3eb'/%3E%3Crect x='80' y='68' width='184' height='20' rx='10' fill='%23191b20'/%3E%3Crect x='760' y='62' width='160' height='32' rx='16' fill='%232563eb'/%3E%3Crect x='44' y='146' width='300' height='420' rx='24' fill='white' stroke='%23dfe3eb'/%3E%3Crect x='78' y='184' width='190' height='22' rx='11' fill='%23191b20'/%3E%3Crect x='78' y='235' width='220' height='14' rx='7' fill='%23bfc5d0'/%3E%3Crect x='78' y='276' width='230' height='94' rx='18' fill='%23f0f2f6'/%3E%3Crect x='78' y='398' width='198' height='14' rx='7' fill='%23c9ced8'/%3E%3Crect x='78' y='438' width='150' height='38' rx='19' fill='%23e8edf7'/%3E%3Crect x='388' y='146' width='608' height='420' rx='24' fill='white' stroke='%23dfe3eb'/%3E%3Crect x='430' y='188' width='260' height='28' rx='14' fill='%23191b20'/%3E%3Crect x='430' y='238' width='440' height='16' rx='8' fill='%23c7ccd6'/%3E%3Crect x='430' y='292' width='220' height='150' rx='22' fill='%23f3f5f8'/%3E%3Crect x='690' y='292' width='220' height='150' rx='22' fill='%23f3f5f8'/%3E%3Crect x='430' y='482' width='190' height='44' rx='22' fill='%23191b20'/%3E%3Crect x='654' y='488' width='140' height='20' rx='10' fill='%23cbd1dc'/%3E%3C/svg%3E"
+                />
+                <div class="absolute left-[41%] top-[43%] h-[27%] w-[45%] rounded-lg border-2 border-amber bg-amber/10"></div>
+                <div class="absolute left-[73%] top-[9%] h-[10%] w-[17%] rounded-lg border-2 border-red bg-red/10"></div>
+                <div class="scan-line absolute left-0 top-6 h-px w-full"></div>
+              </div>
             </div>
 
-            <article class="rounded-[2rem] bg-[#f5f5f7] p-4 sm:p-6">
-              <div class="rounded-[1.8rem] bg-white p-5 shadow-card">
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-steel" data-i18n="demo_screen_label">Current screen</p>
-                    <p id="demo-screen-title" class="mt-2 text-3xl font-semibold tracking-tight">UI screen</p>
+            <aside class="rounded-xl border border-black/10 bg-ink p-4 text-white">
+              <p class="text-xs font-semibold uppercase tracking-[0.16em] text-white/55">AI результат</p>
+              <div class="mt-4 space-y-3">
+                <div class="rounded-lg bg-white/8 p-3">
+                  <div class="flex items-center justify-between gap-3">
+                    <p class="text-sm font-semibold">Слабая зона CTA</p>
+                    <span class="rounded bg-red/20 px-2 py-1 text-[0.68rem] font-semibold text-red">Критично</span>
                   </div>
-                  <span id="demo-pill" class="rounded-full bg-appleBlue/10 px-4 py-2 text-sm font-medium text-appleBlue">3 findings</span>
+                  <p class="mt-2 text-xs leading-5 text-white/65">Основное действие теряется рядом с вторичной ссылкой.</p>
                 </div>
-
-                <div class="mt-6 rounded-[1.5rem] border border-black/5 bg-[#fafafa] p-4 sm:p-5">
-                  <div id="demo-dropzone" class="relative mx-auto overflow-hidden rounded-[1.35rem] bg-white transition">
-                    <div class="grid gap-5 p-4 lg:grid-cols-2">
-                      <div class="rounded-[1.25rem] border border-black/5 bg-[#fbfbfd] p-3">
-                        <div class="mb-3 flex items-center justify-between">
-                          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-steel" data-i18n="demo_before_title">Before</p>
-                          <span class="rounded-full bg-[#fff7e8] px-3 py-1 text-xs font-medium text-warning" data-i18n="demo_before_badge">Issues visible</span>
-                        </div>
-                        <div id="demo-before-stage" class="relative flex min-h-[360px] items-center justify-center overflow-hidden rounded-[1rem] bg-white">
-                          <img
-                            id="demo-image-before"
-                            alt="Before screenshot preview"
-                            class="max-h-[560px] w-auto max-w-full rounded-[1rem] object-contain"
-                            src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='780' viewBox='0 0 1200 780'%3E%3Crect width='1200' height='780' rx='42' fill='%23f6f7fb'/%3E%3Crect x='58' y='64' width='308' height='190' rx='30' fill='white' stroke='%23e4e5ea'/%3E%3Crect x='58' y='288' width='308' height='190' rx='30' fill='white' stroke='%23e4e5ea'/%3E%3Crect x='58' y='512' width='308' height='190' rx='30' fill='white' stroke='%23e4e5ea'/%3E%3Crect x='486' y='88' width='648' height='608' rx='46' fill='white' stroke='%23e6e7eb'/%3E%3Crect x='534' y='150' width='172' height='30' rx='15' fill='%23f0f1f5'/%3E%3Crect x='534' y='206' width='248' height='48' rx='16' fill='%23111111' opacity='0.92'/%3E%3Crect x='910' y='154' width='154' height='88' rx='42' fill='%23e8f0ff'/%3E%3Crect x='536' y='314' width='522' height='316' rx='34' fill='%23fafafa' stroke='%23e9e9ee'/%3E%3Crect x='580' y='356' width='84' height='236' rx='42' fill='white'/%3E%3Crect x='710' y='356' width='292' height='120' rx='30' fill='white'/%3E%3Crect x='710' y='506' width='292' height='120' rx='30' fill='white'/%3E%3C/svg%3E"
-                          />
-                          <div id="demo-overlay-layer" class="pointer-events-none absolute inset-0">
-                            <div id="demo-overlays" class="absolute inset-0"></div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="rounded-[1.25rem] border border-black/5 bg-[#fbfbfd] p-3">
-                        <div class="mb-3 flex items-center justify-between">
-                          <p class="text-xs font-semibold uppercase tracking-[0.22em] text-steel" data-i18n="demo_after_title">After</p>
-                          <span class="rounded-full bg-[#edf8ef] px-3 py-1 text-xs font-medium text-[#237a3b]" data-i18n="demo_after_badge">Suggested fixes</span>
-                        </div>
-                        <div class="flex min-h-[360px] items-center justify-center overflow-hidden rounded-[1rem] bg-white">
-                          <img
-                            id="demo-image-after"
-                            alt="After screenshot preview"
-                            class="max-h-[560px] w-auto max-w-full rounded-[1rem] object-contain transition-all duration-300"
-                            src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='780' viewBox='0 0 1200 780'%3E%3Crect width='1200' height='780' rx='42' fill='%23f6f7fb'/%3E%3Crect x='58' y='64' width='308' height='190' rx='30' fill='white' stroke='%23e4e5ea'/%3E%3Crect x='58' y='288' width='308' height='190' rx='30' fill='white' stroke='%23e4e5ea'/%3E%3Crect x='58' y='512' width='308' height='190' rx='30' fill='white' stroke='%23e4e5ea'/%3E%3Crect x='486' y='88' width='648' height='608' rx='46' fill='white' stroke='%23e6e7eb'/%3E%3Crect x='534' y='150' width='172' height='30' rx='15' fill='%23f0f1f5'/%3E%3Crect x='534' y='206' width='248' height='48' rx='16' fill='%23111111' opacity='0.92'/%3E%3Crect x='910' y='154' width='154' height='88' rx='42' fill='%23e8f0ff'/%3E%3Crect x='536' y='314' width='522' height='316' rx='34' fill='%23fafafa' stroke='%23e9e9ee'/%3E%3Crect x='580' y='356' width='84' height='236' rx='42' fill='white'/%3E%3Crect x='710' y='356' width='292' height='120' rx='30' fill='white'/%3E%3Crect x='710' y='506' width='292' height='120' rx='30' fill='white'/%3E%3C/svg%3E"
-                          />
-                        </div>
-                        <div id="demo-fix-list" class="mt-3 space-y-2"></div>
-                      </div>
-                    </div>
-
-                    <div id="demo-drop-hint" class="pointer-events-none absolute inset-0 hidden items-center justify-center bg-appleBlue/10 backdrop-blur-sm">
-                      <div class="rounded-[2rem] border border-appleBlue/20 bg-white/85 px-8 py-6 text-center shadow-card">
-                        <p class="text-lg font-semibold tracking-tight text-ink" data-i18n="demo_drop_hint">Drop a file to inspect it in UI Inspector</p>
-                      </div>
-                    </div>
-                    <div id="demo-empty" class="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-white/88 px-8 text-center">
-                      <div class="rounded-full bg-[#f5f5f7] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-steel" data-i18n="demo_empty_badge">Interactive preview</div>
-                      <p class="max-w-md text-2xl font-semibold tracking-tight" data-i18n="demo_empty_title">Upload or drag a screenshot to inspect it live.</p>
-                      <p class="max-w-md text-sm leading-7 text-steel" data-i18n="demo_empty_body">The workspace will detect a few likely issues and highlight them precisely over the image.</p>
-                    </div>
+                <div class="rounded-lg bg-white/8 p-3">
+                  <div class="flex items-center justify-between gap-3">
+                    <p class="text-sm font-semibold">Неровный ритм</p>
+                    <span class="rounded bg-amber/20 px-2 py-1 text-[0.68rem] font-semibold text-amber">Средне</span>
                   </div>
+                  <p class="mt-2 text-xs leading-5 text-white/65">Карточки используют разные внутренние отступы.</p>
                 </div>
               </div>
-            </article>
-
-            <aside class="rounded-[1.8rem] border border-black/10 bg-[#fbfbfd] p-5">
-              <div class="flex items-center justify-between gap-4">
-                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-steel" data-i18n="demo_issues_title">Detected issues</p>
-                <span id="demo-count" class="rounded-full bg-white px-3 py-1 text-xs text-steel shadow-card">3 findings</span>
+              <div class="mt-4 rounded-lg border border-white/10 bg-white p-3 text-ink">
+                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-muted">Исправление</p>
+                <p class="mt-2 text-sm font-semibold">Усилить CTA и привести карточки к сетке 24 px.</p>
               </div>
-              <div id="demo-issues" class="mt-6 space-y-4"></div>
             </aside>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="cta" class="px-6 pb-24 pt-6 lg:px-8">
-      <div class="mx-auto max-w-6xl">
-        <div class="overflow-hidden rounded-[2.5rem] bg-ink px-8 py-12 text-white shadow-soft sm:px-12 lg:flex lg:items-end lg:justify-between lg:px-16">
-          <div class="max-w-2xl">
-            <p class="text-sm font-medium tracking-[0.2em] text-white/60 uppercase" data-i18n="cta_eyebrow">Open</p>
-            <h2 class="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl" data-i18n="cta_title">
-              Start reviewing interfaces without leaving the page.
-            </h2>
-            <p class="mt-5 max-w-xl text-lg leading-8 text-white/70" data-i18n="cta_body">
-              Jump into the interactive demo, upload a screenshot and try the UI Inspector workflow directly in the browser.
-            </p>
+    <section id="inspector" class="px-4 pb-14 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-7xl">
+        <div class="mb-5 flex flex-col gap-4 border-y border-black/10 py-5 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Рабочая область</p>
+            <h2 class="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Загрузите скриншот и получите разбор.</h2>
           </div>
+          <label class="inline-flex w-full cursor-pointer items-center justify-center rounded-lg bg-blue px-5 py-3 text-sm font-semibold text-white shadow-tight transition hover:bg-blue/90 sm:w-auto">
+            Загрузить изображение
+            <input id="demo-upload" type="file" accept="image/*" class="hidden" />
+          </label>
+        </div>
 
-          <div class="mt-10 flex flex-col gap-4 lg:mt-0 lg:items-end">
-            <a
-              href="#demo"
-              class="inline-flex items-center justify-center rounded-full bg-white px-7 py-3 text-sm font-medium text-ink transition hover:bg-white/90"
-              data-i18n="cta_button"
+        <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <article class="rounded-2xl border border-black/10 bg-white p-3 shadow-precise sm:p-4">
+            <div class="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Анализируемый экран</p>
+                <p id="screen-title" class="mt-1 text-xl font-semibold tracking-tight">Пример интерфейса</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <span id="findings-pill" class="rounded-md bg-panel px-3 py-1.5 text-xs font-semibold text-ink">3 проблемы</span>
+                <span id="score-pill" class="rounded-md bg-green/10 px-3 py-1.5 text-xs font-semibold text-green">Оценка 86%</span>
+              </div>
+            </div>
+
+            <div
+              id="dropzone"
+              class="relative rounded-xl border border-dashed border-black/20 bg-panel p-2 transition sm:p-3"
             >
-              Go to functionality
-            </a>
-            <p class="text-sm text-white/60" data-i18n="cta_note">Browser demo • Screenshot upload • Interactive UI review</p>
+              <div class="grid gap-3 lg:grid-cols-2">
+                <div class="rounded-lg border border-black/10 bg-white p-2">
+                  <div class="mb-2 flex items-center justify-between gap-2">
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">До</p>
+                    <span class="rounded bg-amber/10 px-2 py-1 text-xs font-semibold text-amber">Зоны риска</span>
+                  </div>
+                  <div id="before-stage" class="relative flex min-h-[240px] items-center justify-center overflow-hidden rounded-md bg-white sm:min-h-[360px]">
+                    <img id="before-image" alt="Скриншот до исправлений" class="max-h-[520px] w-auto max-w-full rounded-md object-contain" />
+                    <div id="overlay-layer" class="pointer-events-none absolute inset-0">
+                      <div id="overlays" class="absolute inset-0"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="rounded-lg border border-black/10 bg-white p-2">
+                  <div class="mb-2 flex items-center justify-between gap-2">
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">После</p>
+                    <span class="rounded bg-green/10 px-2 py-1 text-xs font-semibold text-green">Рекомендованный вид</span>
+                  </div>
+                  <div class="relative flex min-h-[240px] items-center justify-center overflow-hidden rounded-md bg-white sm:min-h-[360px]">
+                    <img id="after-image" alt="Скриншот после рекомендаций" class="max-h-[520px] w-auto max-w-full rounded-md object-contain transition" />
+                    <div class="pointer-events-none absolute inset-x-6 bottom-5 hidden rounded-lg border border-green/25 bg-white/92 p-3 shadow-tight sm:block">
+                      <p class="text-xs font-semibold uppercase tracking-[0.14em] text-green">AI улучшение</p>
+                      <p id="after-note" class="mt-1 text-sm font-semibold text-ink">Более заметный CTA, ровнее отступы, выше контраст.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="empty-state" class="absolute inset-3 flex flex-col items-center justify-center rounded-xl bg-white/92 px-4 text-center backdrop-blur-sm">
+                <p class="rounded-md bg-panel px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-muted">Быстрый старт</p>
+                <p class="mt-4 max-w-md text-2xl font-semibold tracking-tight">Перетащите скриншот сюда или загрузите файл.</p>
+                <p class="mt-3 max-w-md text-sm leading-6 text-muted">Инспектор построит список проблем и привяжет каждую рекомендацию к точной зоне на изображении.</p>
+              </div>
+
+              <div id="drop-hint" class="pointer-events-none absolute inset-3 hidden items-center justify-center rounded-xl bg-blue/10 backdrop-blur-sm">
+                <div class="rounded-lg border border-blue/20 bg-white px-5 py-4 text-center shadow-tight">
+                  <p class="text-sm font-semibold text-ink">Отпустите файл, чтобы начать анализ</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <aside class="rounded-2xl border border-black/10 bg-white p-4 shadow-tight">
+            <div class="flex items-center justify-between gap-3">
+              <p class="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Проблемы</p>
+              <span id="issue-count" class="rounded-md bg-panel px-2.5 py-1 text-xs font-semibold text-muted">3</span>
+            </div>
+            <div id="issues" class="mt-4 space-y-2"></div>
+
+            <div class="mt-5 rounded-xl border border-black/10 bg-ink p-4 text-white">
+              <p class="text-xs font-semibold uppercase tracking-[0.16em] text-white/55">Что исправить первым</p>
+              <p id="priority-fix" class="mt-3 text-base font-semibold leading-6">Сделать основное действие заметнее и выровнять карточки по единой сетке.</p>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section id="capabilities" class="border-y border-black/10 bg-[#fbfcfe] px-4 py-14 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-7xl">
+        <div class="max-w-2xl">
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Возможности</p>
+          <h2 class="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Только то, что нужно для точного UI-разбора.</h2>
+        </div>
+
+        <div class="mt-8 grid gap-3 md:grid-cols-3">
+          <article class="rounded-xl border border-black/10 bg-white p-5 shadow-tight">
+            <p class="text-sm font-semibold text-blue">01</p>
+            <h3 class="mt-4 text-lg font-semibold tracking-tight">Подсветка зон риска</h3>
+            <p class="mt-2 text-sm leading-6 text-muted">Каждая проблема привязана к конкретной области скриншота, а не спрятана в общем комментарии.</p>
+          </article>
+          <article class="rounded-xl border border-black/10 bg-white p-5 shadow-tight">
+            <p class="text-sm font-semibold text-blue">02</p>
+            <h3 class="mt-4 text-lg font-semibold tracking-tight">Приоритеты и причины</h3>
+            <p class="mt-2 text-sm leading-6 text-muted">Инспектор показывает критичность, объясняет влияние на восприятие и помогает выбрать порядок правок.</p>
+          </article>
+          <article class="rounded-xl border border-black/10 bg-white p-5 shadow-tight">
+            <p class="text-sm font-semibold text-blue">03</p>
+            <h3 class="mt-4 text-lg font-semibold tracking-tight">До и после</h3>
+            <p class="mt-2 text-sm leading-6 text-muted">Рекомендации показываются рядом с улучшенной версией, чтобы результат был понятен сразу.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="workflow" class="px-4 py-14 sm:px-6 lg:px-8">
+      <div class="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.8fr_1.2fr]">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Поток работы</p>
+          <h2 class="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Быстрый разбор без лишних экранов.</h2>
+          <p class="mt-4 text-base leading-7 text-muted">Страница работает как инструмент: загрузка, анализ, подсветка, решение. Весь сценарий проходит прямо в браузере.</p>
+        </div>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="rounded-xl border border-black/10 bg-white p-5 shadow-tight">
+            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Input</p>
+            <p class="mt-3 text-lg font-semibold">Загрузите скриншот продукта</p>
+          </div>
+          <div class="rounded-xl border border-black/10 bg-white p-5 shadow-tight">
+            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">AI Review</p>
+            <p class="mt-3 text-lg font-semibold">Получите проблемные зоны и приоритеты</p>
+          </div>
+          <div class="rounded-xl border border-black/10 bg-white p-5 shadow-tight">
+            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Fixes</p>
+            <p class="mt-3 text-lg font-semibold">Примените конкретные рекомендации</p>
+          </div>
+          <div class="rounded-xl border border-black/10 bg-white p-5 shadow-tight">
+            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Output</p>
+            <p class="mt-3 text-lg font-semibold">Сравните исходный и улучшенный вид</p>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="px-4 pb-16 sm:px-6 lg:px-8">
+      <div class="mx-auto flex max-w-7xl flex-col gap-5 rounded-2xl border border-black/10 bg-ink p-6 text-white shadow-precise sm:p-8 md:flex-row md:items-center md:justify-between">
+        <div class="max-w-2xl">
+          <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">Проверьте следующий экран прямо здесь.</h2>
+          <p class="mt-3 text-sm leading-6 text-white/65">Загрузите скриншот и сразу получите список проблем, подсветку и рекомендации.</p>
+        </div>
+        <a href="#inspector" class="inline-flex items-center justify-center rounded-lg bg-white px-5 py-3 text-sm font-semibold text-ink transition hover:bg-white/90">
+          Открыть инспектор
+        </a>
       </div>
     </section>
   </main>
 
   <script>
-    const messages = {
-      ru: {
-        page_title: 'UI Inspector',
-        page_description: 'UI Inspector помогает анализировать интерфейсы прямо в браузере, находить проблемы в layout и проверять визуальную консистентность.',
-        header_subtitle: 'Браузерное рабочее пространство',
-        nav_features: 'Возможности',
-        nav_screenshots: 'Скриншоты',
-        nav_demo: 'Демо',
-        nav_open: 'Открыть',
-        hero_eyebrow: 'Точный UI Review',
-        hero_title: 'Проверяйте каждый пиксель раньше, чем это сделают пользователи.',
-        hero_body: 'UI Inspector анализирует скриншоты прямо в браузере и помогает дизайнерам и разработчикам находить проблемы с отступами, иерархией и визуальной консистентностью в одном сфокусированном рабочем пространстве.',
-        hero_primary: 'Открыть UI Inspector',
-        hero_secondary: 'Посмотреть возможности',
-        stat_one_title: '1 клик',
-        stat_one_body: 'чтобы загрузить и проверить любой скриншот',
-        stat_two_title: '3 режима',
-        stat_two_body: 'обзор, список проблем и детали выбранного элемента',
-        stat_three_title: 'В браузере',
-        stat_three_body: 'SaaS-рабочее пространство с ощущением аккуратного продуктового инструмента',
-        mock_issues: 'Найденные проблемы',
-        mock_issue_1_title: 'Смещение кнопки',
-        mock_issue_1_body: 'Основной CTA расположен на 6px ниже базовой линии сетки.',
-        mock_issue_2_title: 'Неровные отступы',
-        mock_issue_2_body: 'Внутренние отступы карточек отличаются между блоками.',
-        mock_issue_3_title: 'Слабый вторичный текст',
-        mock_issue_3_body: 'Подписи второго уровня не хватает контраста.',
-        mock_screen_label: 'Текущий экран',
-        mock_findings: '12 находок',
-        mock_score: 'Оценка выравнивания',
-        mock_recommendations: 'Рекомендации',
-        mock_rec_1: 'Приведите spacing карточек к 24px.',
-        mock_rec_2: 'Усильте контраст вспомогательного текста.',
-        mock_rec_3: 'Выровняйте CTA по границе формы.',
-        features_eyebrow: 'Возможности',
-        features_title: 'Сфокусированный набор инструментов для проверки интерфейсов.',
-        features_body: 'Каждый экран устроен так, чтобы вы легко переходили от общего обзора к конкретной проблеме.',
-        feature_1_title: 'Быстрый анализ скриншота',
-        feature_1_body: 'Загрузите экран и сразу получите визуальный разбор spacing и hierarchy.',
-        feature_2_title: 'Issue-first workflow',
-        feature_2_body: 'Просматривайте findings в понятном списке и сразу переходите к нужной зоне.',
-        feature_3_title: 'Детали по элементу',
-        feature_3_body: 'Понимайте, что не так, почему это важно и что исправить следующим шагом.',
-        feature_4_title: 'Product-grade UI',
-        feature_4_body: 'Более чистый SaaS-интерфейс, который выглядит точным и продуманным.',
-        screens_eyebrow: 'Скриншоты',
-        screens_title: 'Интерфейс, который кажется знакомым с первого экрана.',
-        screens_body: 'Спокойная иерархия и мягкая глубина помогают сосредоточиться на ревью, а не на самом инструменте.',
-        screens_canvas_title: 'Маркетинговый экран',
-        screens_highlights_title: 'Что видно сразу',
-        screens_highlight_1: 'Визуальные маркеры проблем с spacing и alignment.',
-        screens_highlight_2: 'Короткие summaries с понятной severity.',
-        screens_highlight_3: 'Сфокусированные detail-панели для быстрых правок.',
-        screens_state_title: 'Состояние ревью',
-        screens_state_alignment: 'Выравнивание',
-        screens_state_alignment_value: 'Сильное',
-        screens_state_spacing: 'Отступы',
-        screens_state_spacing_value: 'Нужно доработать',
-        screens_state_contrast: 'Контраст',
-        screens_state_contrast_value: 'Проверить',
-        screens_list_title: 'Список проблем',
-        screens_list_1_title: 'Хедеру не хватает ритма',
-        screens_list_1_body: 'Верхний блок использует неровные отступы между title и metadata.',
-        screens_list_2_title: 'Вторичное действие слишком слабое',
-        screens_list_2_body: 'Низкий контраст делает control менее заметным.',
-        screens_detail_title: 'Детальная панель',
-        screens_detail_issue: 'Неровные отступы',
-        screens_detail_body: 'Текущий блок использует 20px padding, а соседние карточки 24px, из-за чего визуальный ритм слегка ломается.',
-        screens_detail_fix: 'Рекомендация: привести все карточки к 24px.',
-        demo_eyebrow: 'Демо',
-        demo_title: 'Проверьте скриншот прямо в браузере.',
-        demo_body: 'Загрузите интерфейс, просматривайте рекомендации и кликайте по ошибкам, чтобы подсветить точную область на экране.',
-        demo_workspace_eyebrow: 'Интерактивное рабочее пространство',
-        demo_workspace_title: 'Product-style layout для UI review.',
-        demo_upload: 'Загрузить скриншот',
-        demo_recommendation_title: 'Рекомендация',
-        demo_how_title: 'Как это работает',
-        demo_how_1: 'Загрузите или перетащите любой product screenshot.',
-        demo_how_2: 'Выберите проблему справа.',
-        demo_how_3: 'Смотрите точную подсветку поверх изображения.',
-        demo_score_title: 'Оценка выравнивания',
-        demo_screen_label: 'Текущий экран',
-        demo_drop_hint: 'Отпустите файл, чтобы открыть его в UI Inspector',
-        demo_before_title: 'До',
-        demo_before_badge: 'Ошибки видны',
-        demo_after_title: 'После',
-        demo_after_badge: 'Предлагаемые исправления',
-        demo_empty_badge: 'Интерактивный просмотр',
-        demo_empty_title: 'Загрузите или перетащите скриншот, чтобы проверить его вживую.',
-        demo_empty_body: 'Рабочее пространство покажет вероятные проблемы и точно подсветит их поверх изображения.',
-        demo_issues_title: 'Найденные проблемы',
-        fix_spacing: 'Нормализован spacing между блоками',
-        fix_contrast: 'Усилен контраст вторичного текста',
-        fix_hierarchy: 'Усилена визуальная иерархия',
-        fix_cta: 'CTA сделан заметнее и яснее',
-        fix_alignment: 'Исправлено выравнивание action-элементов',
-        cta_eyebrow: 'Открыть',
-        cta_title: 'Начните проверять интерфейсы, не покидая страницу.',
-        cta_body: 'Перейдите в интерактивное демо, загрузите скриншот и попробуйте рабочий процесс UI Inspector прямо в браузере.',
-        cta_button: 'Перейти к функционалу',
-        cta_note: 'Браузерное демо • Загрузка скриншота • Интерактивное UI review',
-        findings_one: 'находка',
-        findings_few: 'находки',
-        findings_many: 'находок',
-        demo_screen_default: 'Интерфейс',
-        demo_screen_landscape: 'Широкий интерфейс',
-        demo_screen_portrait: 'Вертикальный интерфейс',
-        severity_warning: 'Предупреждение',
-        severity_critical: 'Критично',
-        issue_spacing_title: 'Ритм отступов требует проверки',
-        issue_spacing_desc_wide: 'Широкий экран может визуально растягивать интервалы между основными блоками.',
-        issue_spacing_desc_tall: 'Вертикальный экран может усиливать ощущение плотной вертикальной сетки.',
-        issue_spacing_rec_wide: 'Проверьте горизонтальный ритм и приведите крупные блоки к более стабильной spacing-системе.',
-        issue_spacing_rec_tall: 'Проверьте вертикальные интервалы между секциями и выровняйте ключевые отступы.',
-        issue_contrast_title: 'Низкий контраст текста',
-        issue_contrast_desc: 'Скриншот выглядит очень светлым, из-за чего вторичные подписи могут теряться.',
-        issue_contrast_rec: 'Усильте контраст secondary text и вспомогательных элементов хотя бы в ключевых сценариях.',
-        issue_hierarchy_title: 'Слабая визуальная иерархия',
-        issue_hierarchy_desc: 'Контраст между крупными и вторичными областями выглядит слишком мягким.',
-        issue_hierarchy_rec: 'Добавьте больше разницы между title, body и secondary слоями через размер, вес и тон.',
-        issue_cta_title: 'CTA стоит выделить сильнее',
-        issue_cta_desc: 'На высоком экране основной action может теряться ниже первого экрана просмотра.',
-        issue_cta_rec: 'Сделайте главный CTA контрастнее и проверьте его заметность в первом viewport.',
-      },
-      en: {
-        page_title: 'UI Inspector',
-        page_description: 'UI Inspector helps review interfaces in the browser, detect layout issues, and improve visual consistency.',
-        header_subtitle: 'Browser workspace',
-        nav_features: 'Features',
-        nav_screenshots: 'Screenshots',
-        nav_demo: 'Demo',
-        nav_open: 'Open',
-        hero_eyebrow: 'Precision UI Review',
-        hero_title: 'Inspect every pixel before users do.',
-        hero_body: 'UI Inspector analyzes screenshots right in the browser and helps designers and developers catch spacing issues, hierarchy problems and visual inconsistencies in one focused workspace.',
-        hero_primary: 'Open UI Inspector',
-        hero_secondary: 'Explore features',
-        stat_one_title: '1 click',
-        stat_one_body: 'to load and inspect any screenshot',
-        stat_two_title: '3 views',
-        stat_two_body: 'overview, issue list and focused detail',
-        stat_three_title: 'Browser ready',
-        stat_three_body: 'a SaaS workflow with the feel of a polished product tool',
-        mock_issues: 'Detected issues',
-        mock_issue_1_title: 'Button misalignment',
-        mock_issue_1_body: 'Primary CTA sits 6px below the grid baseline.',
-        mock_issue_2_title: 'Spacing inconsistency',
-        mock_issue_2_body: 'Card padding differs between blocks.',
-        mock_issue_3_title: 'Low emphasis text',
-        mock_issue_3_body: 'Secondary label lacks enough contrast.',
-        mock_screen_label: 'Current screen',
-        mock_findings: '12 findings',
-        mock_score: 'Alignment score',
-        mock_recommendations: 'Recommendations',
-        mock_rec_1: 'Normalize card spacing to 24px.',
-        mock_rec_2: 'Raise contrast on helper text.',
-        mock_rec_3: 'Align CTA with the form edge.',
-        features_eyebrow: 'Features',
-        features_title: 'A focused toolkit for interface review.',
-        features_body: 'Every screen is organized to move you from overview to action without friction.',
-        feature_1_title: 'Instant screenshot analysis',
-        feature_1_body: 'Drop in a screen and get a fast visual breakdown of spacing and hierarchy.',
-        feature_2_title: 'Issue-first workflow',
-        feature_2_body: 'Review findings in a clear list and jump straight to the exact problem area.',
-        feature_3_title: 'Element-level detail',
-        feature_3_body: 'Understand what is wrong, why it matters and what to improve next.',
-        feature_4_title: 'Product-grade UI',
-        feature_4_body: 'A cleaner SaaS interface that feels intentional, lightweight and precise.',
-        screens_eyebrow: 'Screenshots',
-        screens_title: 'Designed to feel familiar on day one.',
-        screens_body: 'Quiet hierarchy and subtle depth help the interface stay out of the way while you review.',
-        screens_canvas_title: 'Marketing screen',
-        screens_highlights_title: 'Highlights',
-        screens_highlight_1: 'Visual markers for spacing and alignment issues.',
-        screens_highlight_2: 'Quick summaries with clear severity labels.',
-        screens_highlight_3: 'Focused detail panels for faster refinement.',
-        screens_state_title: 'Review state',
-        screens_state_alignment: 'Alignment',
-        screens_state_alignment_value: 'Strong',
-        screens_state_spacing: 'Spacing',
-        screens_state_spacing_value: 'Needs work',
-        screens_state_contrast: 'Contrast',
-        screens_state_contrast_value: 'Review',
-        screens_list_title: 'Issue list',
-        screens_list_1_title: 'Header lacks vertical rhythm',
-        screens_list_1_body: 'Top section uses uneven spacing between title and metadata.',
-        screens_list_2_title: 'Secondary action too subtle',
-        screens_list_2_body: 'Low contrast makes the control easy to miss.',
-        screens_detail_title: 'Detail panel',
-        screens_detail_issue: 'Spacing inconsistency',
-        screens_detail_body: 'The current block uses 20px padding while adjacent cards use 24px, creating a visible break in rhythm.',
-        screens_detail_fix: 'Suggested fix: normalize all cards to 24px.',
-        demo_eyebrow: 'Live Demo',
-        demo_title: 'Inspect a screenshot right in the browser.',
-        demo_body: 'Upload an interface, review recommendations, and click issues to highlight the exact area on the screen.',
-        demo_workspace_eyebrow: 'Interactive Workspace',
-        demo_workspace_title: 'Review screenshots with a product-style layout.',
-        demo_upload: 'Upload screenshot',
-        demo_recommendation_title: 'Recommendation',
-        demo_how_title: 'How it works',
-        demo_how_1: 'Upload or drag any product screenshot.',
-        demo_how_2: 'Choose an issue on the right.',
-        demo_how_3: 'See the exact highlighted area over the image.',
-        demo_score_title: 'Alignment score',
-        demo_screen_label: 'Current screen',
-        demo_drop_hint: 'Drop a file to inspect it in UI Inspector',
-        demo_before_title: 'Before',
-        demo_before_badge: 'Issues visible',
-        demo_after_title: 'After',
-        demo_after_badge: 'Suggested fixes',
-        demo_empty_badge: 'Interactive preview',
-        demo_empty_title: 'Upload or drag a screenshot to inspect it live.',
-        demo_empty_body: 'The workspace will detect a few likely issues and highlight them precisely over the image.',
-        demo_issues_title: 'Detected issues',
-        fix_spacing: 'Spacing normalized across related blocks',
-        fix_contrast: 'Secondary text contrast improved',
-        fix_hierarchy: 'Visual hierarchy strengthened',
-        fix_cta: 'CTA made more prominent and readable',
-        fix_alignment: 'Action alignment corrected',
-        cta_eyebrow: 'Open',
-        cta_title: 'Start reviewing interfaces without leaving the page.',
-        cta_body: 'Jump into the interactive demo, upload a screenshot and try the UI Inspector workflow directly in the browser.',
-        cta_button: 'Go to functionality',
-        cta_note: 'Browser demo • Screenshot upload • Interactive UI review',
-        findings_one: 'finding',
-        findings_few: 'findings',
-        findings_many: 'findings',
-        demo_screen_default: 'UI screen',
-        demo_screen_landscape: 'Landscape interface',
-        demo_screen_portrait: 'Portrait interface',
-        severity_warning: 'Warning',
-        severity_critical: 'Critical',
-        issue_spacing_title: 'Spacing rhythm needs review',
-        issue_spacing_desc_wide: 'A wide layout can visually stretch the intervals between major blocks.',
-        issue_spacing_desc_tall: 'A tall layout can make the vertical rhythm feel too dense.',
-        issue_spacing_rec_wide: 'Review horizontal rhythm and bring major blocks back to a more stable spacing system.',
-        issue_spacing_rec_tall: 'Review vertical intervals between sections and normalize the key offsets.',
-        issue_contrast_title: 'Low text contrast',
-        issue_contrast_desc: 'The screenshot looks very bright, so secondary labels may get lost.',
-        issue_contrast_rec: 'Raise contrast on secondary text and helper elements in the key scenarios.',
-        issue_hierarchy_title: 'Weak visual hierarchy',
-        issue_hierarchy_desc: 'The contrast between major and secondary areas feels too soft.',
-        issue_hierarchy_rec: 'Create more separation between title, body and secondary layers through size, weight and tone.',
-        issue_cta_title: 'CTA needs stronger emphasis',
-        issue_cta_desc: 'On a tall screen the primary action may fall below the first attention zone.',
-        issue_cta_rec: 'Make the main CTA more prominent and verify its visibility in the first viewport.',
-      },
-    };
-
-    const language = navigator.language && navigator.language.toLowerCase().startsWith('ru') ? 'ru' : 'en';
-    const t = messages[language];
-
-    document.documentElement.lang = language;
-    document.title = t.page_title;
-    document.querySelector('meta[name="description"]').setAttribute('content', t.page_description);
-    document.querySelectorAll('[data-i18n]').forEach((node) => {
-      const key = node.dataset.i18n;
-      if (t[key]) {
-        node.textContent = t[key];
-      }
-    });
+    const defaultImage = "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1040' height='660' viewBox='0 0 1040 660'%3E%3Crect width='1040' height='660' rx='28' fill='%23f6f7fb'/%3E%3Crect x='44' y='42' width='952' height='72' rx='20' fill='white' stroke='%23dfe3eb'/%3E%3Crect x='80' y='68' width='184' height='20' rx='10' fill='%23191b20'/%3E%3Crect x='760' y='62' width='160' height='32' rx='16' fill='%232563eb'/%3E%3Crect x='44' y='146' width='300' height='420' rx='24' fill='white' stroke='%23dfe3eb'/%3E%3Crect x='78' y='184' width='190' height='22' rx='11' fill='%23191b20'/%3E%3Crect x='78' y='235' width='220' height='14' rx='7' fill='%23bfc5d0'/%3E%3Crect x='78' y='276' width='230' height='94' rx='18' fill='%23f0f2f6'/%3E%3Crect x='78' y='398' width='198' height='14' rx='7' fill='%23c9ced8'/%3E%3Crect x='78' y='438' width='150' height='38' rx='19' fill='%23e8edf7'/%3E%3Crect x='388' y='146' width='608' height='420' rx='24' fill='white' stroke='%23dfe3eb'/%3E%3Crect x='430' y='188' width='260' height='28' rx='14' fill='%23191b20'/%3E%3Crect x='430' y='238' width='440' height='16' rx='8' fill='%23c7ccd6'/%3E%3Crect x='430' y='292' width='220' height='150' rx='22' fill='%23f3f5f8'/%3E%3Crect x='690' y='292' width='220' height='150' rx='22' fill='%23f3f5f8'/%3E%3Crect x='430' y='482' width='190' height='44' rx='22' fill='%23191b20'/%3E%3Crect x='654' y='488' width='140' height='20' rx='10' fill='%23cbd1dc'/%3E%3C/svg%3E";
 
     const defaultIssues = [
       {
-        id: 'misalignment',
-        title: {
-          ru: 'Смещение кнопки',
-          en: 'Button misalignment',
-        },
-        description: {
-          ru: 'Основной CTA расположен ниже базовой линии сетки.',
-          en: 'Primary CTA sits below the grid baseline.',
-        },
-        recommendation: {
-          ru: 'Выровняйте primary action по общей оси формы и проверьте базовую линию соседних контролов.',
-          en: 'Align the primary action to the form edge and verify the shared baseline of nearby controls.',
-        },
-        severity: 'warning',
-        score: 94,
-        x: 0.68,
-        y: 0.72,
+        id: 'cta',
+        title: 'Слабое основное действие',
+        description: 'Кнопка конкурирует с вторичными элементами и не собирает внимание.',
+        recommendation: 'Увеличьте контраст кнопки, сократите соседний текст и оставьте вокруг действия больше воздуха.',
+        severity: 'critical',
+        score: 82,
+        x: 0.72,
+        y: 0.08,
         width: 0.18,
         height: 0.09,
       },
       {
         id: 'spacing',
-        title: {
-          ru: 'Неровные отступы',
-          en: 'Spacing inconsistency',
-        },
-        description: {
-          ru: 'Padding карточек отличается между соседними блоками.',
-          en: 'Card padding differs between adjacent blocks.',
-        },
-        recommendation: {
-          ru: 'Приведите related cards к общей spacing-системе 24px для более устойчивого ритма.',
-          en: 'Normalize related cards to a shared 24px spacing system for a steadier rhythm.',
-        },
+        title: 'Неровный ритм карточек',
+        description: 'Блоки выглядят собранными из разных сеток: отступы и высоты не совпадают.',
+        recommendation: 'Приведите карточки к шагу 24 px и выровняйте заголовки по одной вертикальной оси.',
         severity: 'warning',
-        score: 89,
-        x: 0.43,
-        y: 0.34,
-        width: 0.46,
-        height: 0.41,
+        score: 86,
+        x: 0.41,
+        y: 0.43,
+        width: 0.47,
+        height: 0.26,
       },
       {
         id: 'contrast',
-        title: {
-          ru: 'Слабый вторичный текст',
-          en: 'Low emphasis text',
-        },
-        description: {
-          ru: 'Подписи второго уровня не хватает контраста.',
-          en: 'Secondary label lacks enough contrast.',
-        },
-        recommendation: {
-          ru: 'Усильте контраст helper text, чтобы он оставался читаемым и не терялся на фоне интерфейса.',
-          en: 'Increase contrast on helper text so it stays readable without fading into the background.',
-        },
-        severity: 'critical',
-        score: 84,
-        x: 0.10,
-        y: 0.51,
-        width: 0.26,
+        title: 'Слабый вспомогательный текст',
+        description: 'Подписи и пояснения теряются на светлом фоне.',
+        recommendation: 'Поднимите контраст вторичного текста и ограничьте количество серых оттенков.',
+        severity: 'warning',
+        score: 88,
+        x: 0.07,
+        y: 0.35,
+        width: 0.23,
         height: 0.18,
       },
     ];
 
-    const issuesRoot = document.getElementById('demo-issues');
-    const overlaysRoot = document.getElementById('demo-overlays');
-    const demoImage = document.getElementById('demo-image');
-    const demoUpload = document.getElementById('demo-upload');
-    const demoCount = document.getElementById('demo-count');
-    const demoPill = document.getElementById('demo-pill');
-    const demoRecommendation = document.getElementById('demo-recommendation');
-    const demoScore = document.getElementById('demo-score');
-    const demoScoreBar = document.getElementById('demo-score-bar');
-    const demoEmpty = document.getElementById('demo-empty');
-    const demoDropzone = document.getElementById('demo-dropzone');
-    const demoDropHint = document.getElementById('demo-drop-hint');
-    const demoScreenTitle = document.getElementById('demo-screen-title');
-    const demoImageBefore = document.getElementById('demo-image-before');
-    const demoImageAfter = document.getElementById('demo-image-after');
-    const demoBeforeStage = document.getElementById('demo-before-stage');
-    const demoFixList = document.getElementById('demo-fix-list');
+    const elements = {
+      heroUpload: document.getElementById('hero-upload'),
+      upload: document.getElementById('demo-upload'),
+      dropzone: document.getElementById('dropzone'),
+      dropHint: document.getElementById('drop-hint'),
+      empty: document.getElementById('empty-state'),
+      beforeImage: document.getElementById('before-image'),
+      afterImage: document.getElementById('after-image'),
+      beforeStage: document.getElementById('before-stage'),
+      overlays: document.getElementById('overlays'),
+      issues: document.getElementById('issues'),
+      issueCount: document.getElementById('issue-count'),
+      findingsPill: document.getElementById('findings-pill'),
+      scorePill: document.getElementById('score-pill'),
+      screenTitle: document.getElementById('screen-title'),
+      priorityFix: document.getElementById('priority-fix'),
+      afterNote: document.getElementById('after-note'),
+    };
 
-    let demoIssues = [...defaultIssues];
-    let selectedIssueId = demoIssues[0].id;
-    let currentObjectUrl = null;
-    let renderedImageBounds = null;
+    let currentIssues = [...defaultIssues];
+    let selectedIssueId = currentIssues[0].id;
+    let objectUrl = null;
 
-    function translateField(field) {
-      return typeof field === 'string' ? field : field[language];
-    }
-
-    function severityStyles(severity) {
-      return severity === 'critical'
-        ? {
-            pill: 'bg-[#fff1ef] text-critical',
-            overlay: 'rgba(211, 59, 47, 0.16)',
-            border: 'rgba(211, 59, 47, 0.9)',
-            label: t.severity_critical,
-          }
-        : {
-            pill: 'bg-[#fff7e8] text-warning',
-            overlay: 'rgba(199, 120, 0, 0.16)',
-            border: 'rgba(199, 120, 0, 0.88)',
-            label: t.severity_warning,
-          };
-    }
-
-    function findingsLabel(count) {
-      if (language === 'ru') {
-        if (count === 1) return `1 ${t.findings_one}`;
-        if (count >= 2 && count <= 4) return `${count} ${t.findings_few}`;
-        return `${count} ${t.findings_many}`;
+    function severityMeta(severity) {
+      if (severity === 'critical') {
+        return {
+          label: 'Критично',
+          pill: 'bg-red/10 text-red',
+          active: 'border-red/30 bg-red/5',
+          overlayBg: 'rgba(220, 38, 38, 0.13)',
+          overlayBorder: 'rgba(220, 38, 38, 0.95)',
+        };
       }
 
-      return `${count} ${count === 1 ? t.findings_one : t.findings_many}`;
-    }
-
-    function currentSelectedIssue() {
-      return demoIssues.find((issue) => issue.id === selectedIssueId) || demoIssues[0];
-    }
-
-    function renderIssues() {
-      issuesRoot.innerHTML = '';
-
-      demoIssues.forEach((issue) => {
-        const styles = severityStyles(issue.severity);
-        const selected = issue.id === selectedIssueId;
-        const card = document.createElement('button');
-        card.type = 'button';
-        card.className = [
-          'w-full rounded-[1.6rem] border p-5 text-left transition-all duration-200',
-          selected
-            ? 'border-black/10 bg-white shadow-card'
-            : 'border-black/5 bg-white/80 hover:bg-white',
-        ].join(' ');
-
-        card.innerHTML = `
-          <div class="space-y-4">
-            <div>
-              <p class="text-lg font-semibold tracking-tight text-ink">${translateField(issue.title)}</p>
-              <p class="mt-2 text-sm leading-7 text-steel">${translateField(issue.description)}</p>
-            </div>
-            <span class="inline-flex rounded-full px-3 py-1 text-xs font-medium ${styles.pill}">${styles.label}</span>
-          </div>
-        `;
-
-        card.addEventListener('click', () => {
-          selectedIssueId = issue.id;
-          renderDemo();
-        });
-
-        issuesRoot.appendChild(card);
-      });
-    }
-
-    function calculateImageBounds() {
-      const imageRect = demoImageBefore.getBoundingClientRect();
-      const containerRect = demoBeforeStage.getBoundingClientRect();
-      const naturalWidth = demoImageBefore.naturalWidth || 1200;
-      const naturalHeight = demoImageBefore.naturalHeight || 780;
-
-      const scale = Math.min(containerRect.width / naturalWidth, containerRect.height / naturalHeight);
-      const width = naturalWidth * scale;
-      const height = naturalHeight * scale;
-      const left = (containerRect.width - width) / 2;
-      const top = (containerRect.height - height) / 2;
-
-      renderedImageBounds = {
-        left,
-        top,
-        width,
-        height,
-        imageRect,
+      return {
+        label: 'Средне',
+        pill: 'bg-amber/10 text-amber',
+        active: 'border-amber/30 bg-amber/5',
+        overlayBg: 'rgba(180, 83, 9, 0.13)',
+        overlayBorder: 'rgba(180, 83, 9, 0.95)',
       };
     }
 
-    function renderOverlays() {
-      overlaysRoot.innerHTML = '';
-      const selectedIssue = currentSelectedIssue();
-      if (!selectedIssue) return;
-
-      calculateImageBounds();
-      if (!renderedImageBounds) return;
-
-      const styles = severityStyles(selectedIssue.severity);
-      const overlay = document.createElement('div');
-      overlay.className = 'absolute rounded-[1rem] border-2 transition-all duration-300 ease-out shadow-[0_14px_32px_rgba(17,17,17,0.08)]';
-      overlay.style.left = `${renderedImageBounds.left + selectedIssue.x * renderedImageBounds.width}px`;
-      overlay.style.top = `${renderedImageBounds.top + selectedIssue.y * renderedImageBounds.height}px`;
-      overlay.style.width = `${selectedIssue.width * renderedImageBounds.width}px`;
-      overlay.style.height = `${selectedIssue.height * renderedImageBounds.height}px`;
-      overlay.style.backgroundColor = styles.overlay;
-      overlay.style.borderColor = styles.border;
-
-      overlaysRoot.appendChild(overlay);
+    function selectedIssue() {
+      return currentIssues.find((issue) => issue.id === selectedIssueId) || currentIssues[0];
     }
 
-    function fixLabel(issue) {
-      if (issue.id.includes('contrast') || issue.id === 'contrast') return t.fix_contrast;
-      if (issue.id.includes('hierarchy')) return t.fix_hierarchy;
-      if (issue.id.includes('cta')) return t.fix_cta;
-      if (issue.id.includes('misalignment')) return t.fix_alignment;
-      return t.fix_spacing;
+    function pluralProblems(count) {
+      if (count === 1) return '1 проблема';
+      if (count >= 2 && count <= 4) return `${count} проблемы`;
+      return `${count} проблем`;
     }
 
-    function renderFixList() {
-      demoFixList.innerHTML = '';
-      demoIssues.forEach((issue) => {
-        const item = document.createElement('div');
-        item.className = 'flex items-center gap-3 rounded-2xl bg-white px-4 py-3 text-sm text-steel shadow-[0_10px_24px_rgba(17,17,17,0.04)]';
-        item.innerHTML = `
-          <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[#edf8ef] text-xs font-semibold text-[#237a3b]">✓</span>
-          <span>${fixLabel(issue)}</span>
+    function renderIssues() {
+      elements.issues.innerHTML = '';
+
+      currentIssues.forEach((issue, index) => {
+        const meta = severityMeta(issue.severity);
+        const active = issue.id === selectedIssueId;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = [
+          'w-full rounded-lg border p-3 text-left transition',
+          active ? meta.active : 'border-black/10 bg-white hover:bg-panel',
+        ].join(' ');
+        button.innerHTML = `
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="text-sm font-semibold text-ink">${index + 1}. ${issue.title}</p>
+              <p class="mt-1 text-xs leading-5 text-muted">${issue.description}</p>
+            </div>
+            <span class="shrink-0 rounded px-2 py-1 text-[0.68rem] font-semibold ${meta.pill}">${meta.label}</span>
+          </div>
+          <div class="mt-3 rounded-md bg-panel px-3 py-2 text-xs leading-5 text-ink">
+            <span class="font-semibold">Исправление:</span> ${issue.recommendation}
+          </div>
         `;
-        demoFixList.appendChild(item);
+        button.addEventListener('click', () => {
+          selectedIssueId = issue.id;
+          render();
+        });
+        elements.issues.appendChild(button);
       });
     }
 
-    function renderDemo() {
-      const selectedIssue = currentSelectedIssue();
-      const label = findingsLabel(demoIssues.length);
+    function imageBounds() {
+      const imageRect = elements.beforeImage.getBoundingClientRect();
+      const stageRect = elements.beforeStage.getBoundingClientRect();
+      return {
+        left: imageRect.left - stageRect.left,
+        top: imageRect.top - stageRect.top,
+        width: imageRect.width,
+        height: imageRect.height,
+      };
+    }
 
-      demoCount.textContent = label;
-      demoPill.textContent = label;
-      demoRecommendation.textContent = translateField(selectedIssue.recommendation);
-      demoScore.textContent = `${selectedIssue.score}%`;
-      demoScoreBar.style.width = `${selectedIssue.score}%`;
-      demoImageAfter.style.filter = 'contrast(1.05) saturate(1.04) brightness(1.01)';
+    function renderOverlay() {
+      elements.overlays.innerHTML = '';
+      const issue = selectedIssue();
+      if (!issue) return;
+
+      const bounds = imageBounds();
+      if (!bounds.width || !bounds.height) return;
+
+      const meta = severityMeta(issue.severity);
+      const overlay = document.createElement('div');
+      overlay.className = 'absolute rounded-md border-2 shadow-tight transition-all duration-200';
+      overlay.style.left = `${bounds.left + issue.x * bounds.width}px`;
+      overlay.style.top = `${bounds.top + issue.y * bounds.height}px`;
+      overlay.style.width = `${issue.width * bounds.width}px`;
+      overlay.style.height = `${issue.height * bounds.height}px`;
+      overlay.style.backgroundColor = meta.overlayBg;
+      overlay.style.borderColor = meta.overlayBorder;
+      elements.overlays.appendChild(overlay);
+    }
+
+    function render() {
+      const issue = selectedIssue();
+      const label = pluralProblems(currentIssues.length);
+      const averageScore = Math.round(currentIssues.reduce((sum, item) => sum + item.score, 0) / currentIssues.length);
+
+      elements.issueCount.textContent = String(currentIssues.length);
+      elements.findingsPill.textContent = label;
+      elements.scorePill.textContent = `Оценка ${averageScore}%`;
+      elements.priorityFix.textContent = issue.recommendation;
+      elements.afterNote.textContent = issue.recommendation;
+      elements.afterImage.style.filter = 'contrast(1.08) saturate(1.08) brightness(1.02)';
 
       renderIssues();
-      renderOverlays();
-      renderFixList();
+      renderOverlay();
     }
 
-    function buildIssuesFromAnalysis({ width, height, brightness, contrast, orientation }) {
-      const issues = [];
-      const isWide = orientation === 'landscape';
-      const baseScore = Math.max(76, Math.min(97, Math.round(100 - (1 - contrast) * 18 - Math.abs(brightness - 0.82) * 12)));
-
-      issues.push({
-        id: 'spacing-dynamic',
-        title: { ru: t.issue_spacing_title, en: t.issue_spacing_title },
-        description: {
-          ru: isWide ? messages.ru.issue_spacing_desc_wide : messages.ru.issue_spacing_desc_tall,
-          en: isWide ? messages.en.issue_spacing_desc_wide : messages.en.issue_spacing_desc_tall,
+    function buildIssuesFromImage({ width, height, brightness, contrast }) {
+      const isPortrait = height > width;
+      const baseScore = Math.max(74, Math.min(94, Math.round(92 - Math.abs(brightness - 0.78) * 18 - Math.max(0, 0.34 - contrast) * 26)));
+      const issues = [
+        {
+          id: 'dynamic-layout',
+          title: isPortrait ? 'Слишком плотная вертикальная сетка' : 'Слабая композиция первого экрана',
+          description: isPortrait ? 'На высоком скриншоте ключевые блоки стоят слишком близко друг к другу.' : 'Широкий экран не ведет взгляд к главному действию.',
+          recommendation: isPortrait ? 'Разделите основные секции, увеличьте вертикальные интервалы и закрепите главный CTA выше.' : 'Соберите заголовок, пояснение и CTA в одну сильную зону внимания.',
+          severity: 'warning',
+          score: baseScore,
+          x: isPortrait ? 0.16 : 0.46,
+          y: isPortrait ? 0.22 : 0.18,
+          width: isPortrait ? 0.68 : 0.42,
+          height: isPortrait ? 0.34 : 0.22,
         },
-        recommendation: {
-          ru: isWide ? messages.ru.issue_spacing_rec_wide : messages.ru.issue_spacing_rec_tall,
-          en: isWide ? messages.en.issue_spacing_rec_wide : messages.en.issue_spacing_rec_tall,
-        },
-        severity: 'warning',
-        score: baseScore,
-        x: isWide ? 0.40 : 0.12,
-        y: isWide ? 0.24 : 0.30,
-        width: isWide ? 0.46 : 0.76,
-        height: isWide ? 0.44 : 0.30,
-      });
+      ];
 
-      if (brightness > 0.84) {
+      if (brightness > 0.82 || contrast < 0.28) {
         issues.push({
-          id: 'contrast-dynamic',
-          title: { ru: messages.ru.issue_contrast_title, en: messages.en.issue_contrast_title },
-          description: { ru: messages.ru.issue_contrast_desc, en: messages.en.issue_contrast_desc },
-          recommendation: { ru: messages.ru.issue_contrast_rec, en: messages.en.issue_contrast_rec },
-          severity: 'critical',
-          score: Math.max(baseScore - 8, 78),
+          id: 'dynamic-contrast',
+          title: 'Недостаточный контраст текста',
+          description: 'Часть подписей может выглядеть второстепенной даже там, где нужна уверенная читаемость.',
+          recommendation: 'Усилите тон основного текста, уменьшите количество светло-серых подписей и проверьте контраст важных состояний.',
+          severity: brightness > 0.88 ? 'critical' : 'warning',
+          score: Math.max(baseScore - 7, 76),
           x: 0.08,
           y: 0.12,
-          width: 0.30,
+          width: isPortrait ? 0.70 : 0.30,
           height: 0.16,
         });
       }
 
-      if (contrast < 0.28) {
-        issues.push({
-          id: 'hierarchy-dynamic',
-          title: { ru: messages.ru.issue_hierarchy_title, en: messages.en.issue_hierarchy_title },
-          description: { ru: messages.ru.issue_hierarchy_desc, en: messages.en.issue_hierarchy_desc },
-          recommendation: { ru: messages.ru.issue_hierarchy_rec, en: messages.en.issue_hierarchy_rec },
-          severity: 'warning',
-          score: Math.max(baseScore - 4, 80),
-          x: isWide ? 0.50 : 0.16,
-          y: 0.08,
-          width: isWide ? 0.34 : 0.68,
-          height: isWide ? 0.16 : 0.14,
-        });
-      }
+      issues.push({
+        id: 'dynamic-action',
+        title: 'Главное действие требует акцента',
+        description: 'CTA не выглядит самым очевидным следующим шагом.',
+        recommendation: 'Сделайте кнопку контрастнее, сократите соседние элементы и проверьте, что действие видно без скролла.',
+        severity: 'critical',
+        score: Math.max(baseScore - 9, 74),
+        x: isPortrait ? 0.20 : 0.60,
+        y: isPortrait ? 0.72 : 0.68,
+        width: isPortrait ? 0.58 : 0.26,
+        height: 0.10,
+      });
 
-      if (height / width > 1.45) {
-        issues.push({
-          id: 'cta-dynamic',
-          title: { ru: messages.ru.issue_cta_title, en: messages.en.issue_cta_title },
-          description: { ru: messages.ru.issue_cta_desc, en: messages.en.issue_cta_desc },
-          recommendation: { ru: messages.ru.issue_cta_rec, en: messages.en.issue_cta_rec },
-          severity: 'warning',
-          score: Math.max(baseScore - 6, 79),
-          x: 0.22,
-          y: 0.78,
-          width: 0.56,
-          height: 0.10,
-        });
+      if (issues.length < 3) {
+        issues.push(defaultIssues[1]);
       }
 
       return issues.slice(0, 4);
     }
 
-    function analyzeImage(file) {
+    function analyzeFile(file) {
       const img = new Image();
       const reader = new FileReader();
 
       reader.onload = () => {
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d', { willReadFrequently: true });
-          const sampleWidth = 72;
-          const sampleHeight = Math.max(72, Math.round((img.height / img.width) * 72));
+          const context = canvas.getContext('2d', { willReadFrequently: true });
+          const sampleWidth = 80;
+          const sampleHeight = Math.max(60, Math.round((img.height / img.width) * sampleWidth));
           canvas.width = sampleWidth;
           canvas.height = sampleHeight;
-          ctx.drawImage(img, 0, 0, sampleWidth, sampleHeight);
+          context.drawImage(img, 0, 0, sampleWidth, sampleHeight);
 
-          const { data } = ctx.getImageData(0, 0, sampleWidth, sampleHeight);
-          let minLuma = 1;
-          let maxLuma = 0;
-          let sumLuma = 0;
+          const { data } = context.getImageData(0, 0, sampleWidth, sampleHeight);
+          let min = 1;
+          let max = 0;
+          let sum = 0;
 
           for (let index = 0; index < data.length; index += 4) {
             const r = data[index] / 255;
             const g = data[index + 1] / 255;
             const b = data[index + 2] / 255;
             const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-            sumLuma += luma;
-            minLuma = Math.min(minLuma, luma);
-            maxLuma = Math.max(maxLuma, luma);
+            min = Math.min(min, luma);
+            max = Math.max(max, luma);
+            sum += luma;
           }
 
-          const brightness = sumLuma / (data.length / 4);
-          const contrast = maxLuma - minLuma;
-          demoIssues = buildIssuesFromAnalysis({
+          currentIssues = buildIssuesFromImage({
             width: img.width,
             height: img.height,
-            brightness,
-            contrast,
-            orientation: img.width >= img.height ? 'landscape' : 'portrait',
+            brightness: sum / (data.length / 4),
+            contrast: max - min,
           });
-
-          if (!demoIssues.length) {
-            demoIssues = [...defaultIssues];
-          }
-
-          selectedIssueId = demoIssues[0].id;
-          demoScreenTitle.textContent = img.width >= img.height ? t.demo_screen_landscape : t.demo_screen_portrait;
-          renderDemo();
+          selectedIssueId = currentIssues[0].id;
+          elements.screenTitle.textContent = img.width >= img.height ? 'Загруженный широкий экран' : 'Загруженный мобильный экран';
+          render();
         };
 
         img.src = reader.result;
@@ -1092,58 +607,61 @@
       reader.readAsDataURL(file);
     }
 
-    function loadDemoFile(file) {
+    function loadFile(file) {
       if (!file) return;
 
-      if (currentObjectUrl) {
-        URL.revokeObjectURL(currentObjectUrl);
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
       }
 
-      currentObjectUrl = URL.createObjectURL(file);
-      demoImageBefore.src = currentObjectUrl;
-      demoImageAfter.src = currentObjectUrl;
-      demoEmpty.classList.add('hidden');
-      analyzeImage(file);
+      objectUrl = URL.createObjectURL(file);
+      elements.beforeImage.src = objectUrl;
+      elements.afterImage.src = objectUrl;
+      elements.empty.classList.add('hidden');
+      analyzeFile(file);
+      document.getElementById('inspector').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    demoUpload.addEventListener('change', (event) => {
-      const [file] = event.target.files || [];
-      loadDemoFile(file);
-    });
+    function wireUpload(input) {
+      input.addEventListener('change', (event) => {
+        const [file] = event.target.files || [];
+        loadFile(file);
+      });
+    }
+
+    wireUpload(elements.upload);
+    wireUpload(elements.heroUpload);
 
     ['dragenter', 'dragover'].forEach((eventName) => {
-      demoDropzone.addEventListener(eventName, (event) => {
+      elements.dropzone.addEventListener(eventName, (event) => {
         event.preventDefault();
-        demoDropHint.classList.remove('hidden');
-        demoDropHint.classList.add('flex');
-        demoDropzone.classList.add('ring-2', 'ring-appleBlue/20');
+        elements.dropHint.classList.remove('hidden');
+        elements.dropHint.classList.add('flex');
+        elements.dropzone.classList.add('border-blue');
       });
     });
 
     ['dragleave', 'drop'].forEach((eventName) => {
-      demoDropzone.addEventListener(eventName, (event) => {
+      elements.dropzone.addEventListener(eventName, (event) => {
         event.preventDefault();
-        demoDropHint.classList.add('hidden');
-        demoDropHint.classList.remove('flex');
-        demoDropzone.classList.remove('ring-2', 'ring-appleBlue/20');
+        elements.dropHint.classList.add('hidden');
+        elements.dropHint.classList.remove('flex');
+        elements.dropzone.classList.remove('border-blue');
       });
     });
 
-    demoDropzone.addEventListener('drop', (event) => {
+    elements.dropzone.addEventListener('drop', (event) => {
       const [file] = event.dataTransfer.files || [];
-      loadDemoFile(file);
+      loadFile(file);
     });
 
-    demoImageBefore.addEventListener('load', () => {
-      requestAnimationFrame(renderOverlays);
-    });
+    window.addEventListener('resize', renderOverlay);
+    elements.beforeImage.addEventListener('load', () => requestAnimationFrame(renderOverlay));
+    elements.afterImage.addEventListener('load', () => requestAnimationFrame(renderOverlay));
 
-    window.addEventListener('resize', renderOverlays);
-
-    demoRecommendation.textContent = translateField(defaultIssues[0].recommendation);
-    demoScreenTitle.textContent = t.demo_screen_default;
-    demoImageAfter.style.filter = 'contrast(1.05) saturate(1.04) brightness(1.01)';
-    renderDemo();
+    elements.beforeImage.src = defaultImage;
+    elements.afterImage.src = defaultImage;
+    render();
   </script>
 </body>
 </html>
