@@ -89,6 +89,11 @@
       color: #b45309;
     }
 
+    .severity-review {
+      background: rgba(37, 99, 235, 0.1);
+      color: #2563eb;
+    }
+
     .issue-card {
       cursor: pointer;
     }
@@ -146,7 +151,7 @@
           </div>
 
           <h1 class="text-4xl font-semibold leading-[1.02] tracking-tight sm:text-5xl lg:text-6xl">
-            Найдите UI-проблемы по скриншоту.
+            Проверьте визуальные сигналы по скриншоту.
           </h1>
           <p class="mt-4 max-w-xl text-base leading-6 text-muted sm:mt-5 sm:text-lg sm:leading-7">
             Загрузите экран. Демо-режим отметит сложные зоны, объяснит возможный риск и предложит исправления.
@@ -252,8 +257,8 @@
                 <p id="screen-context" class="mt-1 text-xs leading-5 text-muted">Выберите файл, чтобы заменить пример своим скриншотом.</p>
               </div>
               <div class="flex flex-wrap items-center gap-2">
-                <span id="findings-pill" class="rounded-md bg-panel px-3 py-1.5 text-xs font-semibold text-ink">3 проблемы</span>
-                <span id="score-pill" class="rounded-md bg-green/10 px-3 py-1.5 text-xs font-semibold text-green">Демо-оценка 86%</span>
+                <span id="findings-pill" class="rounded-md bg-panel px-3 py-1.5 text-xs font-semibold text-ink">3 сигнала</span>
+                <span id="score-pill" class="rounded-md bg-blue/10 px-3 py-1.5 text-xs font-semibold text-blue">Эвристический разбор</span>
               </div>
             </div>
 
@@ -267,7 +272,7 @@
                   <span class="rounded bg-amber/10 px-2 py-1 text-xs font-semibold text-amber">Зоны риска</span>
                 </div>
                 <div id="before-stage" class="relative flex min-h-[280px] items-center justify-center overflow-hidden rounded-md bg-white sm:min-h-[520px]">
-                  <img id="before-image" alt="Скриншот с подсветкой проблем" class="max-h-[680px] w-auto max-w-full rounded-md object-contain" />
+                  <img id="before-image" alt="Скриншот с подсветкой сигналов" class="max-h-[680px] w-auto max-w-full rounded-md object-contain" />
                   <div id="overlay-layer" class="pointer-events-none absolute inset-0">
                     <div id="overlays" class="absolute inset-0"></div>
                   </div>
@@ -277,7 +282,7 @@
               <div id="analysis-state" class="absolute inset-3 z-20 hidden flex-col items-center justify-center rounded-lg bg-white/95 px-5 text-center" role="status" aria-live="polite">
                 <span class="analysis-spinner h-8 w-8 rounded-full border-2 border-blue/20 border-t-blue"></span>
                 <p class="mt-4 text-base font-semibold text-ink">Выполняем авто-разбор</p>
-                <p class="mt-2 max-w-sm text-sm leading-6 text-muted">Оцениваем визуальную плотность, контраст и основные зоны внимания.</p>
+                <p class="mt-2 max-w-sm text-sm leading-6 text-muted">Измеряем концентрацию деталей, цветовые акценты и распределение визуального веса.</p>
               </div>
 
               <div id="drop-hint" class="pointer-events-none absolute inset-3 hidden items-center justify-center rounded-lg bg-blue/10">
@@ -290,14 +295,14 @@
 
           <aside class="rounded-lg border border-black/10 bg-white p-4 shadow-tight" aria-live="polite">
             <div class="flex items-center justify-between gap-3">
-              <p class="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Проблемы</p>
+              <p class="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Сигналы для проверки</p>
               <span id="issue-count" class="rounded-md bg-panel px-2.5 py-1 text-xs font-semibold text-muted">3</span>
             </div>
             <div id="issues" class="mt-4 space-y-2"></div>
 
             <div id="priority-card" class="mt-5 rounded-lg border border-l-4 bg-red/5 p-4">
               <div class="flex items-center justify-between gap-3">
-                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Что исправить первым</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Что проверить первым</p>
                 <span id="priority-severity" class="severity-label severity-critical">Критично</span>
               </div>
               <p id="priority-index" class="mt-4 text-xs font-semibold text-red">Зона 1</p>
@@ -320,7 +325,7 @@
           <article class="h-full rounded-lg border border-black/10 bg-white p-5">
             <p class="text-sm font-semibold text-blue">01</p>
             <h3 class="mt-4 text-lg font-semibold tracking-tight">Подсветка зон риска</h3>
-            <p class="mt-2 text-sm leading-6 text-muted">Каждая проблема привязана к конкретной области скриншота, а не спрятана в общем комментарии.</p>
+            <p class="mt-2 text-sm leading-6 text-muted">Каждый сигнал привязан к конкретной области скриншота и объясняет измеримое визуальное свойство.</p>
           </article>
           <article class="h-full rounded-lg border border-black/10 bg-white p-5">
             <p class="text-sm font-semibold text-blue">02</p>
@@ -350,7 +355,7 @@
           </div>
           <div class="h-full rounded-lg border border-black/10 bg-white p-5">
             <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Авто-разбор</p>
-            <p class="mt-3 text-lg font-semibold">Получите проблемные зоны и приоритеты</p>
+            <p class="mt-3 text-lg font-semibold">Получите измеримые сигналы и зоны проверки</p>
           </div>
           <div class="h-full rounded-lg border border-black/10 bg-white p-5">
             <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Рекомендации</p>
@@ -368,7 +373,7 @@
       <div class="mx-auto flex max-w-7xl flex-col gap-5 rounded-lg border border-black/10 bg-ink p-6 text-white sm:p-8 md:flex-row md:items-center md:justify-between">
         <div class="max-w-2xl">
           <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">Проверьте следующий экран прямо здесь.</h2>
-          <p class="mt-3 text-sm leading-6 text-white/65">Загрузите скриншот и сразу получите список проблем, подсветку и рекомендации.</p>
+          <p class="mt-3 text-sm leading-6 text-white/65">Загрузите скриншот и получите визуальные сигналы, подсветку и гипотезы для проверки.</p>
         </div>
         <a href="#inspector" class="button-base button-inverse inline-flex items-center justify-center px-5 text-sm">
           Открыть инспектор
@@ -452,6 +457,18 @@
     let hasUploadedResult = false;
 
     function severityMeta(severity) {
+      if (severity === 'review') {
+        return {
+          label: 'Проверить',
+          pill: 'severity-label severity-review',
+          active: 'border-blue/20 bg-blue/10',
+          overlayBg: 'rgba(37, 99, 235, 0.1)',
+          overlayBorder: 'rgba(37, 99, 235, 0.95)',
+          priorityBg: 'rgba(37, 99, 235, 0.05)',
+          priorityText: 'rgb(37, 99, 235)',
+        };
+      }
+
       if (severity === 'critical') {
         return {
           label: 'Критично',
@@ -503,10 +520,10 @@
       return currentIssues.find((issue) => issue.id === selectedIssueId) || currentIssues[0];
     }
 
-    function pluralProblems(count) {
-      if (count === 1) return '1 проблема';
-      if (count >= 2 && count <= 4) return `${count} проблемы`;
-      return `${count} проблем`;
+    function pluralSignals(count) {
+      if (count === 1) return '1 сигнал';
+      if (count >= 2 && count <= 4) return `${count} сигнала`;
+      return `${count} сигналов`;
     }
 
     function renderIssues() {
@@ -590,12 +607,11 @@
       const issue = selectedIssue();
       const issueIndex = currentIssues.findIndex((item) => item.id === issue.id);
       const meta = severityMeta(issue.severity);
-      const label = pluralProblems(currentIssues.length);
-      const averageScore = Math.round(currentIssues.reduce((sum, item) => sum + item.score, 0) / currentIssues.length);
+      const label = pluralSignals(currentIssues.length);
 
       elements.issueCount.textContent = String(currentIssues.length);
       elements.findingsPill.textContent = label;
-      elements.scorePill.textContent = `Демо-оценка ${averageScore}%`;
+      elements.scorePill.textContent = 'Эвристический разбор';
       elements.priorityCard.style.borderColor = meta.overlayBorder;
       elements.priorityCard.style.backgroundColor = meta.priorityBg;
       elements.priorityIndex.textContent = `Зона ${issueIndex + 1}`;
@@ -653,16 +669,28 @@
 
           const mean = lumaSum / pixels;
           const variance = Math.max(0, lumaSquaredSum / pixels - mean * mean);
-          const score = Math.sqrt(variance) * 1.8 + edgeSum / pixels + saturationSum / pixels * 0.35;
+          const localContrast = Math.sqrt(variance);
+          const edgeDensity = edgeSum / pixels;
+          const saturation = saturationSum / pixels;
+          const score = localContrast * 1.8 + edgeDensity + saturation * 0.35;
           candidates.push({
             centerX: (column + 0.5) / columns,
             centerY: (row + 0.5) / rows,
+            mean,
+            localContrast,
+            edgeDensity,
+            saturation,
             score,
           });
         }
       }
 
       candidates.sort((a, b) => b.score - a.score);
+      const scores = candidates.map((candidate) => candidate.score).sort((a, b) => a - b);
+      const medianScore = scores[Math.floor(scores.length / 2)] || 0;
+      const averageSaturation = candidates.reduce((sum, candidate) => sum + candidate.saturation, 0) / candidates.length;
+      const leftScore = candidates.filter((candidate) => candidate.centerX < 0.5).reduce((sum, candidate) => sum + candidate.score, 0);
+      const rightScore = candidates.filter((candidate) => candidate.centerX >= 0.5).reduce((sum, candidate) => sum + candidate.score, 0);
       const selected = [];
       for (const candidate of candidates) {
         const farEnough = selected.every((region) => Math.hypot(candidate.centerX - region.centerX, candidate.centerY - region.centerY) > 0.22);
@@ -677,48 +705,80 @@
 
       const regionWidth = isPortrait ? 0.52 : 0.25;
       const regionHeight = isPortrait ? 0.14 : 0.18;
-      return selected.map((region) => ({
-        x: Math.max(0.02, Math.min(0.98 - regionWidth, region.centerX - regionWidth / 2)),
-        y: Math.max(0.02, Math.min(0.98 - regionHeight, region.centerY - regionHeight / 2)),
-        width: regionWidth,
-        height: regionHeight,
-      }));
+      return {
+        regions: selected.map((region) => ({
+          ...region,
+          x: Math.max(0.02, Math.min(0.98 - regionWidth, region.centerX - regionWidth / 2)),
+          y: Math.max(0.02, Math.min(0.98 - regionHeight, region.centerY - regionHeight / 2)),
+          width: regionWidth,
+          height: regionHeight,
+        })),
+        medianScore,
+        averageSaturation,
+        leftScore,
+        rightScore,
+      };
     }
 
-    function buildIssuesFromImage({ width, height, brightness, contrast, regions }) {
-      const isPortrait = height > width;
-      const baseScore = Math.max(74, Math.min(94, Math.round(92 - Math.abs(brightness - 0.78) * 18 - Math.max(0, 0.34 - contrast) * 26)));
-      const issues = [
-        {
-          id: 'dynamic-action',
-          title: 'Главное действие требует акцента',
-          description: 'В этой визуально активной зоне элементы конкурируют за внимание.',
-          recommendation: 'Сделайте главное действие контрастнее и сократите количество соседних акцентов.',
-          severity: 'critical',
-          score: Math.max(baseScore - 9, 74),
-          ...regions[0],
-        },
-        {
-          id: 'dynamic-layout',
-          title: isPortrait ? 'Слишком плотная вертикальная сетка' : 'Нарушена визуальная иерархия',
-          description: 'Плотность элементов в этой области усложняет быстрый просмотр экрана.',
-          recommendation: isPortrait ? 'Увеличьте вертикальные интервалы между ключевыми блоками.' : 'Разделите элементы по уровням важности и добавьте больше воздуха вокруг главного блока.',
-          severity: 'warning',
-          score: baseScore,
-          ...regions[1],
-        },
-        {
-          id: 'dynamic-contrast',
-          title: contrast < 0.28 || brightness > 0.82 ? 'Недостаточный контраст текста' : 'Контраст зоны требует проверки',
-          description: 'В этой области соседние элементы недостаточно четко отделены друг от друга.',
-          recommendation: 'Усильте контраст важных элементов и сократите количество близких по тону оттенков.',
-          severity: brightness > 0.88 ? 'critical' : 'warning',
-          score: Math.max(baseScore - 7, 76),
-          ...regions[2],
-        },
-      ];
+    function buildSignalsFromImage({ analysis }) {
+      const { regions, medianScore, averageSaturation, leftScore, rightScore } = analysis;
+      const signals = [];
+      const usedRegions = new Set();
+      const detailRegion = regions[0];
 
-      return issues;
+      if (detailRegion && detailRegion.score > medianScore * 1.2 && detailRegion.edgeDensity > 0.018) {
+        signals.push({
+          id: 'detail-concentration',
+          title: 'Высокая концентрация деталей',
+          description: 'В этой области алгоритм видит больше контрастных переходов и мелких элементов, чем в среднем по экрану.',
+          recommendation: 'Проверьте вручную, легко ли здесь выделить главный объект и не конкурируют ли соседние детали за внимание.',
+          severity: 'review',
+          ...detailRegion,
+        });
+        usedRegions.add(detailRegion);
+      }
+
+      const colorRegion = regions.find((region) => region.saturation > Math.max(0.12, averageSaturation * 1.35));
+      if (colorRegion && !usedRegions.has(colorRegion)) {
+        signals.push({
+          id: 'color-accent',
+          title: 'Сильный цветовой акцент',
+          description: 'Эта зона заметно насыщеннее остальных областей скриншота.',
+          recommendation: 'Проверьте, соответствует ли самый яркий цветовой акцент реальному приоритету элемента.',
+          severity: 'review',
+          ...colorRegion,
+        });
+        usedRegions.add(colorRegion);
+      }
+
+      const totalSideScore = leftScore + rightScore;
+      const balanceDifference = totalSideScore ? Math.abs(leftScore - rightScore) / totalSideScore : 0;
+      const heavierSide = leftScore >= rightScore ? 'левой' : 'правой';
+      const balanceRegion = regions.find((region) => leftScore >= rightScore ? region.centerX < 0.5 : region.centerX >= 0.5);
+      if (balanceDifference > 0.18 && balanceRegion && !usedRegions.has(balanceRegion)) {
+        signals.push({
+          id: 'visual-balance',
+          title: 'Смещён визуальный вес',
+          description: `В ${heavierSide} части экрана сосредоточено заметно больше визуальной активности.`,
+          recommendation: 'Проверьте, соответствует ли такое распределение важности контента и ожидаемому маршруту взгляда.',
+          severity: 'review',
+          ...balanceRegion,
+        });
+        usedRegions.add(balanceRegion);
+      }
+
+      if (!signals.length && detailRegion) {
+        signals.push({
+          id: 'manual-review',
+          title: 'Зона с наибольшей визуальной активностью',
+          description: 'Здесь сосредоточено больше всего визуальных изменений на скриншоте, но это не означает наличие ошибки.',
+          recommendation: 'Проверьте эту область вручную. Авто-разбор не обнаружил основания для конкретного UX-диагноза.',
+          severity: 'review',
+          ...detailRegion,
+        });
+      }
+
+      return signals.slice(0, 3);
     }
 
     function compactFileName(name) {
@@ -748,27 +808,8 @@
           context.drawImage(img, 0, 0, sampleWidth, sampleHeight);
 
           const { data } = context.getImageData(0, 0, sampleWidth, sampleHeight);
-          let min = 1;
-          let max = 0;
-          let sum = 0;
-
-          for (let index = 0; index < data.length; index += 4) {
-            const r = data[index] / 255;
-            const g = data[index + 1] / 255;
-            const b = data[index + 2] / 255;
-            const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-            min = Math.min(min, luma);
-            max = Math.max(max, luma);
-            sum += luma;
-          }
-
-          const nextIssues = buildIssuesFromImage({
-            width: img.width,
-            height: img.height,
-            brightness: sum / (data.length / 4),
-            contrast: max - min,
-            regions: detectRegions(data, sampleWidth, sampleHeight),
-          });
+          const analysis = detectRegions(data, sampleWidth, sampleHeight);
+          const nextIssues = buildSignalsFromImage({ analysis });
           const remainingDelay = Math.max(0, 700 - (Date.now() - startedAt));
 
           window.setTimeout(() => {
@@ -776,7 +817,7 @@
             selectedIssueId = currentIssues[0].id;
             hasUploadedResult = true;
             elements.screenTitle.textContent = compactFileName(file.name);
-            elements.screenContext.textContent = `${img.width} × ${img.height} · ${pluralProblems(currentIssues.length)} · авто-разбор завершён`;
+            elements.screenContext.textContent = `${img.width} × ${img.height} · ${pluralSignals(currentIssues.length)} · авто-разбор завершён`;
             setAnalysisState(false);
             setStatus('ready');
             render();
